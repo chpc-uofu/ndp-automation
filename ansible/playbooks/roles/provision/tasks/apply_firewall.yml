@@ -1,0 +1,21 @@
+---
+
+- name: Ensure that firewalld is present
+  ansible.builtin.apt:
+    name: firewalld
+    state: present
+
+- name: Ensure zone drifting is disabled
+  community.general.ini_file:
+    path: /etc/firewalld/firewalld.conf
+    option: AllowZoneDrifting
+    value: "no"
+    mode: '0644'
+  notify: reload-firewalld-service
+
+- name: Unmask, start and enable firewalld.service
+  ansible.builtin.systemd_service:
+    name: firewalld.service
+    state: started
+    enabled: yes
+    masked: no

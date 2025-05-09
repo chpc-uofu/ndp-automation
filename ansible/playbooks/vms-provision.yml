@@ -1,0 +1,50 @@
+---
+
+- name: "Provision: All NDP VMs"
+  hosts: ndp_management,ndp_vms
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    # - name: Extend the logical volume to consume all remaining space in the volume group
+    #   community.general.lvol:
+    #     vg: ubuntu-vg
+    #     lv: "ubuntu--vg-ubuntu--lv"
+    #     size: +100%FREE
+
+    - name: Set the static hostname
+      ansible.builtin.command: >-
+        /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
+      changed_when: no
+
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        upgrade: yes
+        update_cache: yes
+    
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: apply_firewall
+    
+    - name: Install additional snaps
+      when: snaps is defined
+      community.general.snap:
+        name: "{{ snap['name'] }}"
+        classic: "{{ snap['classic'] | default(omit) }}"
+        channel: "{{ snap['channel'] | default(omit) }}"
+        state: present
+      loop: "{{ snaps }}"
+      loop_control:
+        label: "{{ snap['name'] }}"
+        loop_var: snap
+
+- name: "Provision: Management NDP VMs"
+  hosts: ndp_management
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Install and configure HashiCorp Packer
+      ansible.builtin.include_role:
+        name: packer_install

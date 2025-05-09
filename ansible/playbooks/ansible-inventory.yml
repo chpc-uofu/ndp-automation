@@ -1,0 +1,13 @@
+---
+- name: Generate Ansible Inventory File
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Ensure an Ansible inventory file exists    # noqa no-relative-paths
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/inventory.yml.j2"
+        dest: "{{ playbook_dir }}/../../inventory.yml"
+        mode: '0600'
+        force: no # Don't override the file if it already exits.

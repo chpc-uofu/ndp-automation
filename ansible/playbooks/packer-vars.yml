@@ -1,0 +1,12 @@
+---
+- name: Regenerate Packer Variable File
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Regenerate the Packer variables file    # noqa no-relative-paths
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/secrets.pkrvars.hcl.j2"
+        dest: "{{ playbook_dir }}/../../packer/ubuntu-server-noble/secrets.pkrvars.hcl"
+        mode: '0600'

@@ -1,0 +1,7 @@
+---
+
+- name: "(Handler) Reload firewalld.service"
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  listen: reload-firewalld-service

@@ -1,0 +1,69 @@
+---
+
+{#
+NOTE: This is a template file. Do not add actual
+values here. See README.md for instructions.
+-#}
+
+all:
+  children:
+    ndp_templates:
+    ndp_management:
+    ndp_vms:
+  vars:
+    ansible_user: "xxxx"
+    ansible_password: "xxxx"
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_sudo_pass: "xxxx"
+    linuxadmin_username: "xxxx"
+    linuxadmin_password: "xxxx"
+    proxmox_node: "xxxx"
+    proxmox_password: "xxxx"
+    proxmox_storage_pool: "xxxx"
+    proxmox_url: "xxxx"
+    proxmox_user: "xxxx"
+    system_packages:
+      - firewalld
+
+ndp_templates:
+  hosts:
+    <name1>-template.chpc.utah.edu:
+      proxmox_node: "xxxx"
+      vm_description_ubuntu: "NDP template VM"
+      vm_id: xxxx
+      vm_network_adapters_mac_address: "xxxx"
+  vars:
+    vm_os_disk_size: 10G
+
+ndp_management:
+  hosts:
+    <name1>-mgmt.chpc.utah.edu:
+      proxmox_node: "xxxx"
+      vm_description_ubuntu: "NDP management VM"
+      vm_id: xxxx
+      vm_network_adapters_mac_address: "xxxx"
+  vars:
+    vm_os_disk_size: 50G
+
+ndp_vms:
+  # hosts:
+  #   <name1>.chpc.utah.edu:
+  #     vm_description_ubuntu: "NDP VM: xxxx"
+  #     vm_id: xxxx
+  #     vm_network_adapters_mac_address: "xxxx"
+  #   <name2>.chpc.utah.edu:
+  #     vm_description_ubuntu: "NDP VM: xxxx"
+  #     vm_id: xxxx
+  #     vm_network_adapters_mac_address: "xxxx"
+  vars:
+    snaps:
+      - name: aws-cli
+        channel: v2/stable
+        classic: true
+      - name: docker
+      - name: etcd
+      - name: microk8s
+        channel: 1.32/stable
+        classic: true
+      - name: prometheus
+    vm_os_disk_size: 50G

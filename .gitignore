@@ -1,0 +1,15 @@
+
+# Ansible
+.ansible/
+hosts.yml
+inventory.yml
+
+# Packer
+user-data
+
+# Python
+venv/
+
+# Secrets
+# ansible/inventory/hosts.yml
+secrets.pkrvars.hcl

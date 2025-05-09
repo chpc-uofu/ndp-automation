@@ -1,0 +1,44 @@
+#cloud-config
+autoinstall:
+  version: 1
+  apt:
+    mirror-selection:
+      primary:
+        - arches:
+            - amd64
+            - i386
+          uri: http://ubuntu.cs.utah.edu/ubuntu
+        - arches:
+            - default
+          uri: http://ports.ubuntu.com/ubuntu-ports
+  debconf-selections: |
+    openssh-server openssh-server/permit-root-login boolean false
+  drivers:
+    install: false
+  keyboard:
+    layout: us
+  kernel:
+    package: linux-generic
+  locale: "en_US.UTF-8"
+  packages:
+    - qemu-guest-agent
+  shutdown: reboot
+  source:
+    id: ubuntu-server
+  ssh:
+    allow-pw: true
+    install-server: true
+  storage:
+    layout:
+      name: lvm
+    swap:
+      size: 0
+  updates: security
+  user-data:
+    users:
+      - name: {{ linuxadmin_username }}
+        gecos: {{ linuxadmin_username }}
+        groups: adm,cdrom,dip,lxd,plugdev,sudo
+        lock_passwd: false
+        passwd: {{ password_hash['stdout'] }}
+        shell: /bin/bash

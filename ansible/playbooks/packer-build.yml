@@ -1,0 +1,42 @@
+---
+- name: Build the VM Templates
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Retrieve information about specific VM by ID
+      vars:
+        new_vm_id: "{{ hostvars[item]['vm_id'] }}"
+      community.general.proxmox_vm_info:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ proxmox_node }}"
+        # node: "{{ hostvars[item]['proxmox_node'] }}"  ## Want to look at all nodes.
+        type: qemu
+        vmid: "{{ new_vm_id }}"
+      loop: "{{ groups['ndp_templates'] }}"
+      register: current_vm_templates_info
+
+    - name: Set additional facts
+      ansible.builtin.set_fact:
+        current_vm_templates: "{{ (current_vm_templates_info['results'] | map(attribute='proxmox_vms')) | flatten | map(attribute='vmid') }}"
+
+    - name: Use Packer to build the VM templates
+      when: not hostvars[item]['vm_id'] in current_vm_templates
+      ansible.builtin.shell:
+        chdir: "{{ playbook_dir }}/../../packer/ubuntu-server-noble"
+        cmd: >-
+          packer build \
+            -var-file secrets.pkrvars.hcl \
+            -var proxmox_storage_pool={{ hostvars[item]['proxmox_storage_pool'] }} \
+            -var vm_id={{ hostvars[item]['vm_id'] }} \
+            -var vm_name_ubuntu="{{ hostvars[item]['inventory_hostname'] }}" \
+            -var vm_network_adapters_mac_address="{{ hostvars[item]['vm_network_adapters_mac_address'] }}" \
+            -var vm_os_disk_size="{{ hostvars[item]['vm_os_disk_size'] }}" \
+            .
+      args:
+        executable: /bin/bash
+      register: packer_build_result
+      changed_when: "'A template was created' in packer_build_result['stdout']"
+      loop: "{{ groups['ndp_templates'] }}"
