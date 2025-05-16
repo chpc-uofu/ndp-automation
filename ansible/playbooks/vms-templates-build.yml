@@ -1,0 +1,91 @@
+---
+- name: Build the VM Templates
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Retrieve information about specific VM by ID
+      vars:
+        new_vm_id: "{{ hostvars[item]['vm_id'] }}"
+      community.general.proxmox_vm_info:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ proxmox_node }}"
+        # node: "{{ hostvars[item]['proxmox_node'] }}"  ## Want to look at all nodes.
+        type: qemu
+        vmid: "{{ new_vm_id }}"
+      loop: "{{ groups['ndp_templates'] }}"
+      register: current_vm_templates_info
+
+    - name: Set additional facts
+      ansible.builtin.set_fact:
+        current_vm_templates: "{{ (current_vm_templates_info['results'] | map(attribute='proxmox_vms')) | flatten | map(attribute='vmid') }}"
+
+    - name: Create but do not start VMs
+      # check_mode: yes
+      when: not hostvars[item]['vm_id'] in current_vm_templates
+      vars:
+        vm_disk_size: "{{ hostvars[item]['vm_os_disk_size'] | regex_search('\\d+') }}"
+        vm_mac_addr: "{{ hostvars[item]['vm_network_adapters_mac_address'] }}"
+      community.general.proxmox_kvm:
+        # Connection configuration
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ hostvars[item]['proxmox_node'] }}"
+        timeout: 3000
+
+        # Location Configuration
+        name: "{{ hostvars[item]['inventory_hostname'] }}"
+        vmid: "{{ hostvars[item]['vm_id'] }}"
+        
+        # Boot Configuration
+        bios: ovmf
+        bootdisk: ide0
+        efidisk0:
+          storage: "{{ proxmox_storage_pool }}"
+          format: raw
+          efitype: 4m
+          pre_enrolled_keys: false
+
+        # Hardware Configuration
+        cpu: host
+        sockets: 1
+        # vcpus: 1
+        cores: 2
+        memory: 4096
+        
+        # VM Configuration
+        agent: true
+        format: raw
+        ide:
+          ide0: 'local:iso/ubuntu-24.04.2-live-server-amd64.iso,media=cdrom'
+        ipconfig:
+          ipconfig0: 'ip=dhcp'
+        net:
+          net0: 'virtio={{ vm_mac_addr }},bridge=vmbr1,tag=1702'
+        node: "{{ hostvars[item]['proxmox_node'] }}"
+        ostype: l26
+        scsi:
+          scsi0: '{{ proxmox_storage_pool }}:{{ vm_disk_size }},format=raw'
+        scsihw: virtio-scsi-pci
+        storage: "{{ proxmox_storage_pool }}"
+        vga: std  
+      loop: "{{ groups['ndp_templates'] }}"
+    
+    - name: Retrieve information about specific VM by ID
+      vars:
+        new_vm_id: "{{ hostvars[item]['vm_id'] }}"
+      community.general.proxmox_vm_info:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ hostvars[item]['proxmox_node'] }}"
+        # node: "{{ hostvars[item]['proxmox_node'] }}"  ## Want to look at all nodes.
+        type: qemu
+        vmid: "{{ new_vm_id }}"
+      loop: "{{ groups['ndp_templates'] }}"
+      register: current_vms_info
+    
+    - name: Set additional facts
+      ansible.builtin.set_fact:
+        current_vms_stopped: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | selectattr('status', 'eq', 'stopped') | map(attribute='vmid') }}"

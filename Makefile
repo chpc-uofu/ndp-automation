@@ -32,7 +32,7 @@ help: # Show help for each of the Makefile recipes.
 init: | venv-create ansible-inventory packer-init # Initializes the automation environment.
 
 .PHONY: build
-build: | packer-pkrvars-create packer-user-data-create packer-build # Builds the ubuntu-server-noble Packer template.
+build: | ansible-vms-templates-build # Builds the ubuntu-server-noble Packer template.
 
 .PHONY: clone
 clone: | ansible-vms-clone # Clones and starts VMs from the Packer template.
@@ -74,15 +74,20 @@ ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/vms-provision.yml
 
+.PHONY: ansible-vms-templates-build
+ansible-vms-templates-build: # Builds the VM templates.
+	@echo ">>> Running the VM templates generation"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/vms-templates-build.yml
+
 # ---------------------------------------------------------
 # Packer targets
 # ---------------------------------------------------------
 
-.PHONY: packer-build
-packer-build: # Builds the ubuntu-server-noble Packer template.
-	@echo ">>> Running Packer build for the ubuntu-server-noble template"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/packer-build.yml
-#	cd $(CURDIR)/packer/ubuntu-server-noble && packer build -on-error=ask --var-file secrets.pkrvars.hcl .
+# .PHONY: packer-build
+# packer-build: # Builds the ubuntu-server-noble Packer template.
+# 	@echo ">>> Running Packer build for the ubuntu-server-noble template"
+# 	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/packer-build.yml
+# #	cd $(CURDIR)/packer/ubuntu-server-noble && packer build -on-error=ask --var-file secrets.pkrvars.hcl .
 
 .PHONY: packer-init
 packer-init: # Installs missing Packer plugins or upgrades Packer plugins.
