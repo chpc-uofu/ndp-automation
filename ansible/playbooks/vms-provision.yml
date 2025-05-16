@@ -17,6 +17,22 @@
         /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
       changed_when: no
 
+    - name: Adjust DNS domains not populated by DHCP
+      community.general.ini_file:
+        path: /etc/systemd/resolved.conf
+        section: Resolve
+        option: Domains
+        value: "{{ dns_domains }}"
+        state: present
+        create: no
+      register: dns_domains_update
+    
+    - name: (Should be Handler) Restart systemd-resolved.service
+      when: dns_domains_update['changed'] | bool
+      ansible.builtin.systemd_service:
+        name: systemd-resolved.service
+        state: restarted
+
     - name: Update and upgrade apt packages
       ansible.builtin.apt:
         upgrade: yes
@@ -26,7 +42,7 @@
       ansible.builtin.include_role:
         name: provision
         tasks_from: apply_firewall
-    
+
     - name: Install additional snaps
       when: snaps is defined
       community.general.snap:
@@ -48,3 +64,31 @@
     - name: Install and configure HashiCorp Packer
       ansible.builtin.include_role:
         name: packer_install
+
+    - name: Ensure additional packages are present
+      ansible.builtin.apt:
+        name:
+          - make
+          - python3.12-venv
+          - sshpass
+        state: present
+
+    - name: Apply firewall ports for Ubuntu autoinstall artifacts
+      ansible.posix.firewalld:
+        rich_rule: rule family="ipv4" port protocol="tcp" port=9000 source address="{{ proxmox_vm_cidr }}" accept
+        permanent: true
+        state: enabled
+      register: firewalld_update
+
+    - name: (Should be Handler) Reload the firewalld config
+      when: firewalld_update['changed'] | bool
+      ansible.builtin.shell:
+        cmd: /usr/bin/firewall-cmd --reload
+      args:
+        executable: /bin/bash
+      # changed_when: asfdasdfasdf
+
+# Open port 9000 for packer.
+# firewall-cmd --permanent --add-rich-rule='rule family="ipv4" port protocol="tcp" port=9000 source address="<CIDR>" accept'
+# firewall-cmd --reload
+
