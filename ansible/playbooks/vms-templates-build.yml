@@ -5,6 +5,12 @@
   gather_facts: no
 
   tasks:
+    # - name: "Copy user cloud-init file to: {{ proxmox_node }}"
+    #   ansible.builtin.template:
+    #     src: user-data.j2
+    #     dest: /var/lib/vz/snippets/user-data
+    #   delegate_to: "{{ proxmox_node }}"
+
     - name: Retrieve information about specific VM by ID
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
@@ -41,7 +47,7 @@
         
         # Boot Configuration
         bios: ovmf
-        bootdisk: ide0
+        bootdisk: scsi1
         efidisk0:
           storage: "{{ proxmox_storage_pool }}"
           format: raw
@@ -55,11 +61,13 @@
         cores: 2
         memory: 4096
         
+        # # CloudInit Configuration
+        # citype: nocloud
+        # cicustom: "{{ cicustom }}"
+
         # VM Configuration
         agent: true
         format: raw
-        ide:
-          ide0: 'local:iso/ubuntu-24.04.2-live-server-amd64.iso,media=cdrom'
         ipconfig:
           ipconfig0: 'ip=dhcp'
         net:
@@ -68,9 +76,13 @@
         ostype: l26
         scsi:
           scsi0: '{{ proxmox_storage_pool }}:{{ vm_disk_size }},format=raw'
+          scsi1: 'local:iso/ubuntu-24.04.2-live-server-amd64.iso,media=cdrom'
         scsihw: virtio-scsi-pci
         storage: "{{ proxmox_storage_pool }}"
-        vga: std  
+        vga: std 
+      # register: vm_create
+      # until: vm_create is not failed
+      # retries: 10
       loop: "{{ groups['ndp_templates'] }}"
     
     - name: Retrieve information about specific VM by ID
@@ -89,3 +101,36 @@
     - name: Set additional facts
       ansible.builtin.set_fact:
         current_vms_stopped: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | selectattr('status', 'eq', 'stopped') | map(attribute='vmid') }}"
+    
+    - name: Only forcibly update cloud-init for stopped VMs
+      when: hostvars[item]['vm_id'] in current_vms_stopped
+      vars:
+      community.general.proxmox_kvm:
+        # Connection configuration
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ hostvars[item]['proxmox_node'] }}"
+        timeout: 3000
+        
+        # Location Configuration
+        vmid: "{{ hostvars[item]['vm_id'] }}"
+
+        # VM Configuration
+        citype: nocloud
+        cicustom: "{{ cicustom }}"
+        node: "{{ hostvars[item]['proxmox_node'] }}"
+        update: yes
+
+      # register: vm_update
+      # until: vm_update is not failed
+      # retries: 10
+      loop: "{{ groups['ndp_templates'] }}"
+
+    # - name: Ensure VMs are started
+    #   community.general.proxmox_kvm:
+    #     api_user: "{{ proxmox_user }}"
+    #     api_password: "{{ proxmox_password }}"
+    #     api_host: "{{ hostvars[item]['proxmox_node'] }}"
+    #     vmid: "{{ hostvars[item]['vm_id'] }}"
+    #     state: started
+    #   loop: "{{ groups['ndp_templates'] }}"
