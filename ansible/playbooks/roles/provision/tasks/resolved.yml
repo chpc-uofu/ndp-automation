@@ -1,0 +1,11 @@
+---
+
+- name: Adjust DNS domains not populated by DHCP
+  community.general.ini_file:
+    path: /etc/systemd/resolved.conf
+    section: Resolve
+    option: Domains
+    value: "{{ dns_domains }}"
+    state: present
+    create: no
+  notify: restart-resolved-service

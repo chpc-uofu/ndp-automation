@@ -5,3 +5,15 @@
     name: firewalld
     state: reloaded
   listen: reload-firewalld-service
+
+- name: "(Handler) Restart sssd.service"
+  ansible.builtin.systemd_service:
+    name: sssd.service
+    state: restarted
+  listen: restart-sssd-service
+
+- name: (Handler) Restart systemd-resolved.service
+  ansible.builtin.systemd_service:
+    name: systemd-resolved.service
+    state: restarted
+  listen: restart-resolved-service

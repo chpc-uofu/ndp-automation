@@ -1,0 +1,50 @@
+{{ ansible_managed | comment }}
+
+[sssd]
+config_file_version = 2
+reconnection_retries = 15
+services = nss, pam, autofs
+domains = {{ krb5_realm }}
+
+[autofs]
+timeout = 30
+
+[nss]
+filter_groups = root
+filter_users = root
+reconnection_retries = 3
+
+[pam]
+reconnection_retries = 3
+
+[domain/{{ krb5_realm }}]
+timeout = 30
+debug_level = 2
+enumerate = false
+id_provider = ldap
+auth_provider = krb5
+access_provider = ldap
+offline_timeout = 15
+
+# A workaround to the issues of looking up nested groups.
+ldap_ignore_unreadable_references = true
+
+chpass_provider = krb5
+ldap_uri = {{ ldap_uris | join(',') }}
+ldap_search_base = {{ ldap_search_base }}
+ldap_tls_cacert = /etc/pki/tls/certs/ca-bundle.crt
+ldap_tls_reqcert = never
+
+krb5_realm = {{ krb5_realm | upper }}
+krb5_server = {{ krb5_servers | join(',') }}
+krb5_ccname_template = KEYRING:persistent:%U
+krb5_auth_timeout = 60
+krb5_store_password_if_offline = true
+
+ldap_krb5_init_creds = true
+ldap_krb5_ticket_lifetime = 86400
+cache_credentials = true
+use_fully_qualified_names = false
+ldap_access_filter = uidNumber=*
+ldap_schema = rfc2307bis
+ldap_group_member = uniqueMember
