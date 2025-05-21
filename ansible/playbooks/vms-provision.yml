@@ -6,26 +6,68 @@
   gather_facts: yes
 
   tasks:
-    # - name: Extend the logical volume to consume all remaining space in the volume group
-    #   community.general.lvol:
-    #     vg: ubuntu-vg
-    #     lv: "ubuntu--vg-ubuntu--lv"
-    #     size: +100%FREE
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: apply_firewall
+
+    - name: (Debugging) Display local Ansible LVM facts
+      ansible.builtin.debug:
+        msg: "{{ ansible_lvm }}"
+        verbosity: 3
+
+    - name: Grow /dev/sda3 to fill all available space
+      ansible.builtin.shell:
+        cmd: /usr/bin/growpart /dev/sda 3
+      args:
+        executable: /bin/bash
+      register: growpart_result
+      changed_when:
+        - growpart_result['rc'] < 1
+        - "'CHANGED' in growpart_result['stdout']"
+      failed_when:
+        - growpart_result['rc'] > 0
+        - "not 'NOCHANGE' in growpart_result['stdout']"
+
+    - name: Extend the logical volume and resize the filesystem
+      when: (ansible_lvm['vgs']['ubuntu-vg']['free_g'] | int) > 0
+      ansible.builtin.shell:
+        cmd: |-
+          set -o pipefail
+          /usr/sbin/lvextend -r -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+      args:
+        executable: /bin/bash
+      register: lvextend_result
+      changed_when:
+        - lvextend_result['rc'] < 1
+        - "not 'unchanged from' in lvextend_result['stdout']"
+        - "not 'Nothing to do!' in lvextend_result['stderr']"
 
     - name: Set the static hostname
       ansible.builtin.command: >-
         /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
       changed_when: no
 
+    - name: Adjust DNS domains not populated by DHCP
+      community.general.ini_file:
+        path: /etc/systemd/resolved.conf
+        section: Resolve
+        option: Domains
+        value: "{{ dns_domains }}"
+        state: present
+        create: no
+      register: dns_domains_update
+
+    - name: (Should be Handler) Restart systemd-resolved.service
+      when: dns_domains_update['changed'] | bool
+      ansible.builtin.systemd_service:
+        name: systemd-resolved.service
+        state: restarted
+
     - name: Update and upgrade apt packages
       ansible.builtin.apt:
         upgrade: yes
         update_cache: yes
-    
-    - name: Configure firewall
-      ansible.builtin.include_role:
-        name: provision
-        tasks_from: apply_firewall
     
     - name: Install additional snaps
       when: snaps is defined
@@ -48,3 +90,25 @@
     - name: Install and configure HashiCorp Packer
       ansible.builtin.include_role:
         name: packer_install
+
+    - name: Ensure additional packages are present
+      ansible.builtin.apt:
+        name:
+          - make
+          - python3.12-venv
+          - sshpass
+        state: present
+
+    - name: Apply firewall ports for Ubuntu autoinstall artifacts
+      ansible.posix.firewalld:
+        rich_rule: rule family="ipv4" port protocol="tcp" port=9000 source address="{{ proxmox_vm_cidr }}" accept
+        permanent: true
+        state: enabled
+      register: firewalld_update
+
+    - name: (Should be Handler) Reload the firewalld config
+      when: firewalld_update['changed'] | bool
+      ansible.builtin.shell:
+        cmd: /usr/bin/firewall-cmd --reload
+      args:
+        executable: /bin/bash
