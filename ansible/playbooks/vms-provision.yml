@@ -6,11 +6,6 @@
   gather_facts: yes
 
   tasks:
-    - name: Configure firewall
-      ansible.builtin.include_role:
-        name: provision
-        tasks_from: firewall
-
     - name: Configure physical partitions and logical volumes/groups 
       ansible.builtin.include_role:
         name: provision
@@ -30,6 +25,16 @@
       ansible.builtin.apt:
         upgrade: yes
         update_cache: yes
+
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: firewall
+    
+    - name: Configure fail2ban
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: fail2ban
 
     - name: Ensure additional packages are present
       ansible.builtin.apt:

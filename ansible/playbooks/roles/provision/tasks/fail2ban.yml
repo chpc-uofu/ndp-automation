@@ -1,0 +1,44 @@
+---
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Comment out all content in default firewalld jail
+  ansible.builtin.replace:
+    path: /etc/fail2ban/jail.d/defaults-debian.conf
+    regexp: '^((?!#).+)$'
+    replace: '#\1'
+  notify: restart-fail2ban-service
+
+- name: Add note regarding why default firewalld jail content all commented out
+  ansible.builtin.lineinfile:
+    path: /etc/fail2ban/jail.d/defaults-debian.conf
+    line: '# We use firewall-indepenent jail configurations that require content in this file to be commented out.'
+
+- name: Add default jail
+  ansible.builtin.template:
+    src: etc/fail2ban/jail.d/00-default.conf.j2
+    dest: /etc/fail2ban/jail.d/00-default.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart-fail2ban-service
+
+- name: Add sshd* jails
+  ansible.builtin.template:
+    src: etc/fail2ban/jail.d/01-sshd.conf.j2
+    dest: /etc/fail2ban/jail.d/01-sshd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart-fail2ban-service
+
+- name: Unmask, start and enable fail2ban.service
+  ansible.builtin.systemd_service:
+    name: fail2ban.service
+    state: started
+    enabled: yes
+    masked: no
+

@@ -1,5 +1,11 @@
 ---
 
+- name: "(Handler) Restart fail2ban.service"
+  ansible.builtin.service:
+    name: fail2ban.service
+    state: restarted
+  listen: restart-fail2ban-service
+
 - name: "(Handler) Reload firewalld.service"
   ansible.builtin.service:
     name: firewalld
