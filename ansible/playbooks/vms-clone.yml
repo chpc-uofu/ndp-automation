@@ -72,6 +72,21 @@
         state: resized
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
+    - name: Only update CPU and Memory for stopped VMs
+      when: hostvars[item]['vm_id'] in current_vms_stopped
+      community.general.proxmox_kvm:
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        api_host: "{{ hostvars[item]['proxmox_node'] }}"
+        name: "{{ hostvars[item]['inventory_hostname'] }}"
+        vmid: "{{ hostvars[item]['vm_id'] }}"
+        node: "{{ hostvars[item]['proxmox_node'] }}"
+        sockets: "{{ hostvars[item]['vm_cpu_sockets'] }}"
+        cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
+        memory: "{{ hostvars[item]['vm_memory'] }}"
+        update: yes
+      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+
     - name: Ensure VMs are started
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"

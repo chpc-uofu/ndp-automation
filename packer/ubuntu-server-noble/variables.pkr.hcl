@@ -47,7 +47,7 @@ variable "vm_id" {
   default = "9201"
 }
 
-variable "vm_mem_size" {
+variable "vm_memory" {
   type    = number
   default = "4096"
 }
