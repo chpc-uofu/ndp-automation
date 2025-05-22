@@ -16,7 +16,7 @@ Ansible controller:
    ```console
    make init
    ```
-1. Populate `./inventory.yml` with real-world hosts and variable values.
+1. Populate `./inventory.yml` with real-world hosts and variable values using [the inventory guide](./docs/inventory/README.md).
    * **Note:** Once this local file is in place it cannot be overridden again by the command above.
 1. Build the VM template using Hashicorp Packer.
 

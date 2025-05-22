@@ -9,7 +9,7 @@
 - name: Display final Tanium client configuration
   ansible.builtin.debug:
     var: _post_check_config['stdout_lines']
-    verbosity: 2
+    verbosity: 3
 
 - name: Gather taniumclient.service information
   ansible.builtin.systemd:
