@@ -1,0 +1,67 @@
+---
+
+- name: Preflight client checks tasks
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/preflight-checks.yml"
+
+- name: Distribution-specific tasks
+  when: not tanium_client_minversion_requirements_met
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/{{ ansible_distribution }}.yml"
+
+- name: Ensure service override directory is present
+  ansible.builtin.file:
+    path: /etc/systemd/system/taniumclient.service.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Add systemd override files
+  ansible.builtin.template:
+    src: "etc/systemd/system/taniumclient.service.d/{{ item | basename }}"
+    dest: "/etc/systemd/system/taniumclient.service.d/{{ item | basename | regex_replace('\\.j2$', '') }}"
+    owner: root
+    group: root
+    mode: '0640'
+    backup: true
+  loop: "{{ query('fileglob', '../templates/etc/systemd/system/taniumclient.service.d/*.j2') }}"
+  notify: restart-taniumclient-service
+
+- name: Ensure taniumclient.service is unmasked
+  ansible.builtin.systemd_service:
+    name: taniumclient.service
+    masked: no
+
+- name: Ensure Tools directory is present
+  ansible.builtin.file:
+    path: /opt/Tanium/TaniumClient/Tools/
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Add custom Tanium tags file
+  ansible.builtin.template:
+    src: opt/Tanium/TaniumClient/Tools/CustomTags.txt.j2
+    dest: /opt/Tanium/TaniumClient/Tools/CustomTags.txt
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: restart-taniumclient-service
+
+- name: Trigger notified handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure taniumclient is started and enabled
+  ansible.builtin.systemd_service:
+    name: taniumclient.service
+    state: started
+    enabled: yes
+
+- name: "Set custom Tanium client setting: LogVerbosityLevel"
+  ansible.builtin.command: >-
+    {{ tanium_client_binary_path }} config set LogVerbosityLevel {{ tanium_client_log_verbosity }}
+  changed_when: no
+
+- name: Post client checks tasks
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/post-checks.yml"

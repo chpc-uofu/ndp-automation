@@ -1,0 +1,37 @@
+---
+
+- name: Get configuration for installed version of Tanium client
+  ansible.builtin.command: >-
+    {{ tanium_client_binary_path }} config list
+  changed_when: no
+  register: _post_check_config
+
+- name: Display final Tanium client configuration
+  ansible.builtin.debug:
+    var: _post_check_config['stdout_lines']
+    verbosity: 2
+
+- name: Gather taniumclient.service information
+  ansible.builtin.systemd:
+    name: taniumclient.service
+  register: _post_check_service
+
+- name: Final taniumclient.service checks
+  ansible.builtin.assert:
+    that: _post_check_service['status']['ActiveState'] == 'active'
+    fail_msg: "taniumclient.service is not running! {{ _post_check_service['status'] }}!"
+    success_msg: "taniumclient.service is running."
+
+- name: Gather Tanium client registration information
+  ansible.builtin.command: >-
+    {{ tanium_client_binary_path }} config get RegistrationCount
+  changed_when: no
+  register: _post_check_registration
+
+- name: Final Tanium client registration checks
+  ansible.builtin.assert:
+    that:
+      - _post_check_registration['rc'] == 0
+      - (_post_check_registration['stdout'] | int) > 0
+    fail_msg: "The Tanium client did not successfully register with the managing server(s)!"
+    success_msg: "The Tanium client is registered with the managing server(s)."

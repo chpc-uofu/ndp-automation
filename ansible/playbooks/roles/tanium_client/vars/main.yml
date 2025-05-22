@@ -1,0 +1,7 @@
+---
+
+
+tanium_client_download_destination: /tmp/tanium
+tanium_client_filename_dat: tanium-init.dat
+tanium_client_minversion_requirements_met: true
+tanium_client_binary_path: /opt/Tanium/TaniumClient/TaniumClient

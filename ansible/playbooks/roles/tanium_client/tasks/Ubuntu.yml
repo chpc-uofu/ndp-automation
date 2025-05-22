@@ -1,0 +1,54 @@
+---
+
+- name: Set Ubuntu install facts
+  ansible.builtin.set_fact:
+    _filename_package: "taniumclient_{{ tanium_client_minversion }}-ubuntu{{ ansible_distribution_major_version }}_amd64.deb"
+
+- name: Install a newer Tanium client
+  block:    
+    - name: Ensure download path exists
+      ansible.builtin.file:
+        path: "{{ tanium_client_download_destination }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0770'
+
+    - name: "Download the Tanium client file: {{ tanium_client_filename_dat }}"
+      when: not 'ComputerID' in _preflight_check_config
+      ansible.builtin.get_url:
+        url: "{{ tanium_client_download_endpoint }}/{{ tanium_client_filename_dat }}"
+        dest: "{{ tanium_client_download_destination }}"
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: "Download the Tanium client file: {{ _filename_package }}"
+      ansible.builtin.get_url:
+        url: "{{ tanium_client_download_endpoint }}/{{ ansible_distribution | lower }}/{{ _filename_package }}"
+        dest: "{{ tanium_client_download_destination }}"
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Ensure the Tanium client system package is present
+      ansible.builtin.apt:
+        deb: "{{ tanium_client_download_destination }}/{{ _filename_package }}"
+        state: present
+      notify: restart-taniumclient-service
+
+    - name: Copy the dat file to the install directory
+      when: not 'ComputerID' in _preflight_check_config
+      ansible.builtin.copy:
+        remote_src: yes
+        src: "{{ tanium_client_download_destination }}/{{ tanium_client_filename_dat }}"
+        dest: /opt/Tanium/TaniumClient/
+        owner: root
+        group: root
+        mode: '0400'
+
+  always:
+    - name: Ensure download path is removed
+      ansible.builtin.file:
+        path: "{{ tanium_client_download_destination }}"
+        state: absent

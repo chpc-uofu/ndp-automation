@@ -36,6 +36,10 @@
         name: provision
         tasks_from: fail2ban
 
+    - name: Configure Tanium Client
+      ansible.builtin.include_role:
+        name: tanium_client
+
     - name: Ensure additional packages are present
       ansible.builtin.apt:
         name:
