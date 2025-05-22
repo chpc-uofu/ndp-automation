@@ -13,6 +13,14 @@
     mode: '0644'
   notify: reload-firewalld-service
 
+- name: (Management-only) Apply firewall ports for Ubuntu autoinstall artifacts
+  ansible.posix.firewalld:
+    rich_rule: rule family="ipv4" port protocol="tcp" port=9000 source address="{{ proxmox_vm_cidr }}" accept
+    permanent: true
+    state: enabled
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['ndp_management'] }}"
+
 - name: Unmask, start and enable firewalld.service
   ansible.builtin.systemd_service:
     name: firewalld.service

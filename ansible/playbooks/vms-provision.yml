@@ -86,17 +86,3 @@
           - python3.12-venv
           - sshpass
         state: present
-
-    - name: Apply firewall ports for Ubuntu autoinstall artifacts
-      ansible.posix.firewalld:
-        rich_rule: rule family="ipv4" port protocol="tcp" port=9000 source address="{{ proxmox_vm_cidr }}" accept
-        permanent: true
-        state: enabled
-      register: firewalld_update
-
-    - name: (Should be Handler) Reload the firewalld config
-      when: firewalld_update['changed'] | bool
-      ansible.builtin.shell:
-        cmd: /usr/bin/firewall-cmd --reload
-      args:
-        executable: /bin/bash
