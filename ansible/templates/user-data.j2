@@ -36,9 +36,15 @@ autoinstall:
   updates: security
   user-data:
     users:
-      - name: {{ linuxadmin_username }}
-        gecos: {{ linuxadmin_username }}
+      - name: {{ ansible_user }}
+        gecos: {{ ansible_user }}
         groups: adm,cdrom,dip,lxd,plugdev,sudo
         lock_passwd: false
-        passwd: {{ password_hash['stdout'] }}
+        passwd: {{ password_hash_ansible['stdout'] }}
+        shell: /bin/bash
+      - name: {{ local_admin_user }}
+        gecos: {{ local_admin_user }}
+        groups: adm,cdrom,dip,lxd,plugdev,sudo
+        lock_passwd: false
+        passwd: {{ password_hash_localadmin['stdout'] }}
         shell: /bin/bash

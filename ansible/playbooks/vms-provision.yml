@@ -59,6 +59,16 @@
         name: provision
         tasks_from: campus-auth
 
+    - name: "Update password for the local admin account: {{ local_admin_user }}"
+      ansible.builtin.user:
+        name: "{{ local_admin_user }}"
+        password: "{{ local_admin_password | password_hash('sha512', 'mysecretsalt') }}"
+
+    - name: Configure sudoers
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: sudoers
+
 - name: "Provision: Management NDP VMs"
   hosts: ndp_management
   become: yes

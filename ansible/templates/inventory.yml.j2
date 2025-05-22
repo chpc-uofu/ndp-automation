@@ -18,10 +18,9 @@ all:
     dns_domains: "xxxx"
     krb5_realm: "xxxx"
     krb5_servers: []
+    local_admin_user: "xxxx"
     ldap_search_base: "xxxx"
     ldap_uris: []
-    linuxadmin_username: "xxxx"
-    linuxadmin_password: "xxxx"
     proxmox_node: "xxxx"
     proxmox_password: "xxxx"
     proxmox_storage_pool: "xxxx"
@@ -30,10 +29,12 @@ all:
     proxmox_vm_cidr: "xxxx"
     ssh_admin_group: "xxxx"
     ssh_allow_groups: []
+    sudoers: []
 
 ndp_templates:
   hosts:
     <name1>-template.chpc.utah.edu:
+      local_admin_password: "xxxx"
       proxmox_node: "xxxx"
       vm_description_ubuntu: "NDP template VM"
       vm_id: xxxx
@@ -44,6 +45,7 @@ ndp_templates:
 ndp_management:
   hosts:
     <name1>-mgmt.chpc.utah.edu:
+      local_admin_password: "xxxx"
       proxmox_node: "xxxx"
       vm_description_ubuntu: "NDP management VM"
       vm_id: xxxx
@@ -54,10 +56,12 @@ ndp_management:
 ndp_vms:
   # hosts:
   #   <name1>.chpc.utah.edu:
+  #     local_admin_password: "xxxx"
   #     vm_description_ubuntu: "NDP VM: xxxx"
   #     vm_id: xxxx
   #     vm_network_adapters_mac_address: "xxxx"
   #   <name2>.chpc.utah.edu:
+  #     local_admin_password: "xxxx"
   #     vm_description_ubuntu: "NDP VM: xxxx"
   #     vm_id: xxxx
   #     vm_network_adapters_mac_address: "xxxx"

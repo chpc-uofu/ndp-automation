@@ -4,6 +4,7 @@
 
 ansible
 ansible-lint
+passlib
 proxmoxer
 requests
 yamllint

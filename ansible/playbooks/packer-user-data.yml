@@ -5,13 +5,23 @@
   gather_facts: no
 
   tasks:
-    - name: Calculate password hash
+    - name: Calculate password hash for Ansible
       ansible.builtin.shell:
         cmd: /usr/bin/openssl passwd -6 "{{ ansible_password }}"
       args:
         executable: /bin/bash
       changed_when: yes
-      register: password_hash
+      register: password_hash_ansible
+
+    - name: Calculate password hash for local admin
+      vars:
+        template_local_admin_password: "{{ hostvars[groups['ndp_templates'][0]]['local_admin_password'] }}"
+      ansible.builtin.shell:
+        cmd: /usr/bin/openssl passwd -6 "{{ template_local_admin_password }}"
+      args:
+        executable: /bin/bash
+      changed_when: yes
+      register: password_hash_localadmin
 
     - name: Regenerate Packer user-data File    # noqa no-relative-paths
       ansible.builtin.template:

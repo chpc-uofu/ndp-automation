@@ -1,0 +1,25 @@
+---
+
+- name: Apply admin sudoer configs
+  ansible.builtin.template:
+    src: etc/sudoers.d/xxxx.j2
+    dest: "/etc/sudoers.d/{{ item['filename'] }}"
+    owner: root
+    group: root
+    mode: '0640'
+    validate: '/usr/sbin/visudo -cf %s'
+  loop:
+    - filename: "{{ local_admin_user }}"
+      sudoer: "{{ local_admin_user }}"
+    - filename: "{{ ssh_admin_group }}admins"
+      sudoer: "%{{ ssh_admin_group }}"
+
+- name: Apply additional user sudoer configs
+  ansible.builtin.template:
+    src: etc/sudoers.d/xxxx.j2
+    dest: "/etc/sudoers.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0640'
+    validate: '/usr/sbin/visudo -cf %s'
+  loop: "{{ sudoers }}"
