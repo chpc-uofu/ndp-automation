@@ -114,6 +114,14 @@
         name: provision
         tasks_from: cert_selfsigned
 
+    - name: Configure the Prometheus Node Exporter
+      vars:
+        node_exporter_enabled_collectors:
+          - systemd:
+              unit-include: '(ssh|sssd).service'
+      ansible.builtin.include_role:
+        name: prometheus.prometheus.node_exporter
+
 - name: "Provision: Management NDP VMs"
   hosts: ndp_management
   become: true
