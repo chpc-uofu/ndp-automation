@@ -9,7 +9,7 @@
     - name: Configure physical partitions and logical volumes/groups
       ansible.builtin.include_role:
         name: provision
-        tasks_from: resize-lvm
+        tasks_from: resize_lvm
 
     - name: Set the static hostname
       ansible.builtin.command: >-
@@ -26,12 +26,27 @@
         name: provision
         tasks_from: time
 
+    - name: Configure basic system tuning
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: basic_system_tuning
+
+    - name: Configure mail
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: mail
+
+    - name: Configure MOTD
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: motd
+
     - name: Configure syslog
       ansible.builtin.include_role:
         name: provision
         tasks_from: syslog
 
-    - name: Update and upgrade existing apt packages
+    - name: Update and upgrade existing system packages
       ansible.builtin.apt:
         upgrade: true
         update_cache: true
@@ -50,21 +65,6 @@
     # - name: Configure Tanium Client
     #   ansible.builtin.include_role:
     #     name: tanium_client
-
-    - name: Configure mail
-      ansible.builtin.include_role:
-        name: provision
-        tasks_from: mail
-
-    - name: Configure MOTD
-      ansible.builtin.include_role:
-        name: provision
-        tasks_from: motd
-
-    - name: Configure root basic environment
-      ansible.builtin.include_role:
-        name: provision
-        tasks_from: root_basic_environment
 
     - name: Ensure additional packages are present
       ansible.builtin.apt:
@@ -103,6 +103,11 @@
       ansible.builtin.include_role:
         name: provision
         tasks_from: sudoers
+
+    - name: Configure root basic environment
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: root_basic_environment
 
 - name: "Provision: Management NDP VMs"
   hosts: ndp_management
