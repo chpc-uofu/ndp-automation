@@ -7,5 +7,5 @@
     option: Domains
     value: "{{ dns_domains | join(' ') }}"
     state: present
-    create: no
+    create: false
   notify: restart-resolved-service

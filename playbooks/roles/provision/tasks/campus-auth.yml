@@ -44,7 +44,7 @@
   ansible.builtin.blockinfile:
     path: /etc/security/access.conf
     block: "{{ access_conf_expr }}"
-    create: no
+    create: false
     insertafter: EOF
 
 - name: Enable automatic home directory creation
@@ -52,11 +52,11 @@
     cmd: /usr/sbin/pam-auth-update --enable mkhomedir
   args:
     executable: /bin/bash
-  changed_when: yes
+  changed_when: true
 
 - name: Unmask, start, and enable sssd.service
   ansible.builtin.systemd_service:
     name: sssd.service
     state: started
-    masked: no
-    enabled: yes
+    masked: false
+    enabled: true

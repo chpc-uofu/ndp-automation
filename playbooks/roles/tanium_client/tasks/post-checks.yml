@@ -3,7 +3,7 @@
 - name: Get configuration for installed version of Tanium client
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} config list
-  changed_when: no
+  changed_when: false
   register: _post_check_config
 
 - name: Display final Tanium client configuration
@@ -25,7 +25,7 @@
 - name: Gather Tanium client registration information
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} config get RegistrationCount
-  changed_when: no
+  changed_when: false
   register: _post_check_registration
 
 - name: Final Tanium client registration checks

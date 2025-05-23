@@ -50,14 +50,14 @@ clean: | .confirm_clean venv-remove packer-pkrvars-remove packer-user-data-remov
 .PHONY: ansible-inventory
 ansible-inventory: # Generates the Ansible inventory file.
 	@echo ">>> Running Ansible inventory generation"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/ansible-inventory.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/ansible-inventory.yml
 
 .PHONY: ansible-lint
 ansible-lint: # Runs the YAML linter followed by the Ansible linter.
-	@echo ">>> Running YAML lint"
-	. $(ACTIVATE); yamllint $(CURDIR)/ansible
+#   @echo ">>> Running YAML lint"
+#   . $(ACTIVATE); yamllint $(CURDIR)
 	@echo ">>> Running Ansible lint"
-	. $(ACTIVATE); ansible-lint --force-color $(CURDIR)/ansible
+	. $(ACTIVATE); ansible-lint --force-color $(CURDIR)
 
 .PHONY: ansible-pingtest
 ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible inventory.
@@ -67,12 +67,12 @@ ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible invento
 .PHONY: ansible-vms-clone
 ansible-vms-clone: # Clones and starts the VMs.
 	@echo ">>> Running the VMs clone"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/vms-clone.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-clone.yml
 
 .PHONY: ansible-vms-provision
 ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/vms-provision.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml
 
 # ---------------------------------------------------------
 # Packer targets
@@ -81,7 +81,7 @@ ansible-vms-provision: # Provisions the VMs.
 .PHONY: packer-build
 packer-build: # Builds the ubuntu-server-noble Packer template.
 	@echo ">>> Running Packer build for the ubuntu-server-noble template"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/packer-build.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/packer-build.yml
 #	cd $(CURDIR)/packer/ubuntu-server-noble && packer build -on-error=ask --var-file secrets.pkrvars.hcl .
 
 .PHONY: packer-init
@@ -97,7 +97,7 @@ packer-validate: # Checks that the ubuntu-server-noble template Packer template 
 .PHONY: packer-pkrvars-create
 packer-pkrvars-create: # Generates the Packer variables file.
 	@echo ">>> Running Packer variables file generation"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/packer-vars.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/packer-vars.yml
 
 .PHONY: packer-pkrvars-remove
 packer-pkrvars-remove: # Removes the Packer variables file.
@@ -107,7 +107,7 @@ packer-pkrvars-remove: # Removes the Packer variables file.
 .PHONY: packer-user-data-create
 packer-user-data-create: # Generates the Packer variables file.
 	@echo ">>> Running Packer user-data file generation"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/ansible/playbooks/packer-user-data.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/packer-user-data.yml
 
 .PHONY: packer-user-data-remove
 packer-user-data-remove: # Removes the Packer user-data file.

@@ -2,7 +2,7 @@
 - name: Regenerate Packer user-data File
   hosts: 127.0.0.1
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Calculate password hash for Ansible
@@ -10,7 +10,7 @@
         cmd: /usr/bin/openssl passwd -6 "{{ ansible_password }}"
       args:
         executable: /bin/bash
-      changed_when: yes
+      changed_when: true
       register: password_hash_ansible
 
     - name: Calculate password hash for local admin
@@ -20,11 +20,11 @@
         cmd: /usr/bin/openssl passwd -6 "{{ template_local_admin_password }}"
       args:
         executable: /bin/bash
-      changed_when: yes
+      changed_when: true
       register: password_hash_localadmin
 
     - name: Regenerate Packer user-data File    # noqa no-relative-paths
       ansible.builtin.template:
         src: "{{ playbook_dir }}/../templates/user-data.j2"
-        dest: "{{ playbook_dir }}/../../packer/ubuntu-server-noble/http/user-data"
+        dest: "{{ playbook_dir }}/../packer/ubuntu-server-noble/http/user-data"
         mode: '0644'

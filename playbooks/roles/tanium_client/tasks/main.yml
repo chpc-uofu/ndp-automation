@@ -4,7 +4,7 @@
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/preflight-checks.yml"
 
 - name: Distribution-specific tasks
-  when: not tanium_client_minversion_requirements_met
+  when: falset tanium_client_minversion_requirements_met
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/{{ ansible_distribution }}.yml"
 
 - name: Ensure service override directory is present
@@ -29,7 +29,7 @@
 - name: Ensure taniumclient.service is unmasked
   ansible.builtin.systemd_service:
     name: taniumclient.service
-    masked: no
+    masked: false
 
 - name: Ensure Tools directory is present
   ansible.builtin.file:
@@ -56,12 +56,12 @@
   ansible.builtin.systemd_service:
     name: taniumclient.service
     state: started
-    enabled: yes
+    enabled: true
 
 - name: "Set custom Tanium client setting: LogVerbosityLevel"
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} config set LogVerbosityLevel {{ tanium_client_log_verbosity }}
-  changed_when: no
+  changed_when: false
 
 - name: Post client checks tasks
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/post-checks.yml"

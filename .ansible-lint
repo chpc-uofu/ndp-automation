@@ -3,23 +3,29 @@
 # .ansible-lint
 # - https://ansible-lint.readthedocs.io/configuring/#ansible-lint-configuration
 
+profile: basic # min, basic, moderate,safety, shared, production
+
 # exclude_paths included in this file are parsed relative to this file's location
 # and not relative to the CWD of execution. CLI arguments passed to the --exclude
 # option will be parsed relative to the CWD of execution.
 exclude_paths:
+  - .ansible/
+  - .vscode/
+  - docs/
   - packer/
   - venv/
 
 # List of additional kind:pattern to be added at the top of the default
 # match list, first match determines the file kind.
 kinds:
-  - playbook: "./tests/test.yml"
+  - playbook: "./playbooks/*.yml"
+  - tasks: "**/{tasks,handlers}/*.yml"
+  - vars: "**/{defaults,vars}/main.yml"
 
 # Ansible-lint completely ignores rules or tags listed below
 skip_list:
   - 'package-latest'
   - 'role-name'
-  - 'yaml'
 
 # Ansible-lint does not fail on warnings from the rules or tags listed below
 warn_list:

@@ -2,7 +2,7 @@
 - name: Build the VM Templates
   hosts: 127.0.0.1
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Retrieve information about specific VM by ID
@@ -22,9 +22,9 @@
         current_vm_templates: "{{ (current_vm_templates_info['results'] | map(attribute='proxmox_vms')) | flatten | map(attribute='vmid') }}"
 
     - name: Use Packer to build the VM templates
-      when: not hostvars[item]['vm_id'] in current_vm_templates
+      when: falset hostvars[item]['vm_id'] in current_vm_templates
       ansible.builtin.shell:
-        chdir: "{{ playbook_dir }}/../../packer/ubuntu-server-noble"
+        chdir: "{{ playbook_dir }}/../packer/ubuntu-server-noble"
         cmd: >-
           packer build \
             -var-file secrets.pkrvars.hcl \

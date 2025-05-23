@@ -3,22 +3,22 @@
 - name: Get configuration for installed version of Tanium client
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} config list
-  changed_when: no
-  failed_when: no
+  changed_when: false
+  failed_when: false
   register: _preflight_check_config
 
 - name: Get version for installed version of Tanium client
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} --version
-  changed_when: no
-  failed_when: no
+  changed_when: false
+  failed_when: false
   register: _preflight_check_version
 
 - name: "Check if installed Tanium client is older than: {{ tanium_client_minversion }}"
   ansible.builtin.command: >-
     {{ tanium_client_binary_path }} check-version {{ _preflight_check_version['stdout'] }} {{ tanium_client_minversion }}
-  changed_when: no
-  failed_when: no
+  changed_when: false
+  failed_when: false
   register: _preflight_check_version_compare
 
 - name: Set conditional install facts

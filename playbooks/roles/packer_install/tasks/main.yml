@@ -14,4 +14,4 @@
   ansible.builtin.apt:
     name: packer
     state: present
-    update_cache: yes
+    update_cache: true

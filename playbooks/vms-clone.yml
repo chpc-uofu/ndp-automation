@@ -2,7 +2,7 @@
 - name: Create new NDP VMs
   hosts: 127.0.0.1
   connection: local
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Full clone from template
@@ -17,7 +17,7 @@
         clone: does-not-matter
         vmid: "{{ template_vm_id }}"
         newid: "{{ new_vm_id }}"
-        full: yes
+        full: true
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         node: "{{ template_proxmox_node }}"
         target: "{{ hostvars[item]['proxmox_node'] }}"
@@ -37,10 +37,10 @@
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
       register: current_vms_info
-    
+
     - name: Set additional facts
       ansible.builtin.set_fact:
-        current_vms_stopped: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | selectattr('status', 'eq', 'stopped') | map(attribute='vmid') }}"
+        current_vms_stopped: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | selectattr('status', 'eq', 'stopped') | map(attribute='vmid') }}"   # noqa yaml[line-length]
 
     - name: Only forcibly update networking for stopped VMs
       when: hostvars[item]['vm_id'] in current_vms_stopped
@@ -55,8 +55,8 @@
         node: "{{ hostvars[item]['proxmox_node'] }}"
         net:
           net0: 'virtio={{ new_vm_mac_addr }},bridge=vmbr1,tag=1702'
-        update: yes
-        update_unsafe: yes # necessary to force net0 updates
+        update: true
+        update_unsafe: true # necessary to force net0 updates
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
     - name: Only resize disks for stopped VMs
@@ -83,7 +83,7 @@
         sockets: "{{ hostvars[item]['vm_cpu_sockets'] }}"
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
         memory: "{{ hostvars[item]['vm_memory'] }}"
-        update: yes
+        update: true
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
     - name: Ensure VMs are started

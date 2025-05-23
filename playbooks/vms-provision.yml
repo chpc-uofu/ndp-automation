@@ -2,11 +2,11 @@
 
 - name: "Provision: All NDP VMs"
   hosts: ndp_management,ndp_vms
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   tasks:
-    - name: Configure physical partitions and logical volumes/groups 
+    - name: Configure physical partitions and logical volumes/groups
       ansible.builtin.include_role:
         name: provision
         tasks_from: resize-lvm
@@ -14,23 +14,23 @@
     - name: Set the static hostname
       ansible.builtin.command: >-
         /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
-      changed_when: no
+      changed_when: false
 
-    - name: Configure DNS 
+    - name: Configure DNS
       ansible.builtin.include_role:
         name: provision
         tasks_from: resolved
 
     - name: Update and upgrade existing apt packages
       ansible.builtin.apt:
-        upgrade: yes
-        update_cache: yes
+        upgrade: true
+        update_cache: true
 
     - name: Configure firewall
       ansible.builtin.include_role:
         name: provision
         tasks_from: firewall
-    
+
     - name: Configure fail2ban
       ansible.builtin.include_role:
         name: provision
@@ -62,8 +62,8 @@
       loop_control:
         label: "{{ snap['name'] }}"
         loop_var: snap
-    
-    - name: Configure campus authentication 
+
+    - name: Configure campus authentication
       ansible.builtin.include_role:
         name: provision
         tasks_from: campus-auth
@@ -80,8 +80,8 @@
 
 - name: "Provision: Management NDP VMs"
   hosts: ndp_management
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   tasks:
     - name: Install and configure HashiCorp Packer
