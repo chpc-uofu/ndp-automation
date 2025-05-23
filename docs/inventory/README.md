@@ -53,7 +53,8 @@ All variables described below are required and many may be specified at the host
 | `ssh_admin_group` | The group allowed SSH and provisioned with administrative `sudo` capabilities. | `myadmingroup` | inventory, host group, host |
 | `ssh_allow_groups` | List of groups allowed SSH access. | `["mygroup"]` | inventory, host group, host |
 | `sudoers` | List of users with administrative `sudo` capabilities. | `["user1","user2"]` | inventory, host group, host |
-| `tanium_client_custom_tags` | List of custom tags to apply to the Tanium Client configuration. | `["tag1","tag2"]` | inventory, host group, host |
+| `syslog_ipv4` | The IPv4 for a centralized Syslog server. | `192.168.0.22` | inventory, host group, host |
+| `tanium_client_custom_tags` | List of custom tags to apply to the Tanium Client configuration. | `["tag1","tag2"]` | inventory, host group, host | inventory, host group, host |
 | `tanium_client_download_endpoint` | Endpoint where the Tanium Client binary and data file may be found. | `https://mirror.my.domain/tanium` | inventory, host group, host |
 | `vm_cpu_sockets` | Number of CPU sockets to apply to the virtual host. | `2` | inventory, host group, host |
 | `vm_cpu_cores` | Number of CPU cores to apply to the virtual host. | `4` | inventory, host group, host |

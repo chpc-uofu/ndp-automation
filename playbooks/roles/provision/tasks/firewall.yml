@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure that firewalld is present
+- name: Ensure that firewalld package is present
   ansible.builtin.apt:
     name: firewalld
     state: present

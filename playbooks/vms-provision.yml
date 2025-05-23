@@ -26,6 +26,11 @@
         name: provision
         tasks_from: time
 
+    - name: Configure syslog
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: syslog
+
     - name: Update and upgrade existing apt packages
       ansible.builtin.apt:
         upgrade: true

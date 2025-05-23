@@ -1,16 +1,16 @@
 ---
 
-- name: "(Handler) Restart fail2ban.service"
-  ansible.builtin.systemd_service:
-    name: fail2ban.service
-    state: restarted
-  listen: restart-fail2ban-service
-
 - name: "(Handler) Reload firewalld.service"
   ansible.builtin.systemd_service:
     name: firewalld
     state: reloaded
   listen: reload-firewalld-service
+
+- name: "(Handler) Restart fail2ban.service"
+  ansible.builtin.systemd_service:
+    name: fail2ban.service
+    state: restarted
+  listen: restart-fail2ban-service
 
 - name: "(Handler) Restart MOTD timers"
   ansible.builtin.systemd_service:
@@ -26,6 +26,12 @@
     name: postfix
     state: restarted
   listen: restart-postfix-service
+
+- name: "(Handler) Restart rsyslog.service"
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: rsyslog
+  listen: restart-rsyslog-service
 
 - name: "(Handler) Restart sssd.service"
   ansible.builtin.systemd_service:
