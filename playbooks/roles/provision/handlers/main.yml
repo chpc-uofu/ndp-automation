@@ -1,11 +1,5 @@
 ---
 
-- name: "(Handler) Reload firewalld.service"
-  ansible.builtin.systemd_service:
-    name: firewalld
-    state: reloaded
-  listen: reload-firewalld-service
-
 - name: "(Handler) Restart fail2ban.service"
   ansible.builtin.systemd_service:
     name: fail2ban.service

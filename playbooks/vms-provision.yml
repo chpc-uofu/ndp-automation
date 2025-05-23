@@ -53,8 +53,7 @@
 
     - name: Configure firewall
       ansible.builtin.include_role:
-        name: provision
-        tasks_from: firewall
+        name: firewalld
 
     - name: Configure fail2ban
       ansible.builtin.include_role:
