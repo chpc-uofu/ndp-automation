@@ -1,0 +1,58 @@
+---
+
+- name: Set cert and key facts
+  ansible.builtin.set_fact:
+    cert_path: /etc/ssl/certs/localhost.crt
+    csr_path: /etc/ssl/localhost.csr
+    private_key_path: /etc/ssl/private/localhost.key
+
+- name: Check if self-signed certificate already exists
+  ansible.builtin.stat:
+    path: "{{ cert_path }}"
+  register: _check_cert_exists
+
+- name: Generate a new self-signed certificate
+  when: not _check_cert_exists.stat.exists
+  block:
+    - name: Ensure cert and key directories exist
+      ansible.builtin.file:
+        path: /etc/ssl/certs
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      loop:
+        - /etc/ssl/certs
+        - /etc/ssl/private
+
+    - name: Generate a key pair
+      community.crypto.openssl_privatekey:
+        path: "{{ private_key_path }}"
+        size: 4096
+
+    - name: Generate a certificate signing request
+      community.crypto.openssl_csr:
+        common_name: "{{ inventory_hostname }}"
+        country_name: US
+        email_address: "root@{{ inventory_hostname }}"
+        locality_name: SomeCity
+        organization_name: SomeOrganization
+        organizational_unit_name: SomeOrganizationUnit
+        path: "{{ csr_path }}"
+        subject_alt_name:
+          - "DNS:*.{{ inventory_hostname }}"
+          - "DNS:{{ inventory_hostname }}"
+        privatekey_path: "{{ private_key_path }}"
+
+    - name: Generate a self-signed certificate
+      community.crypto.x509_certificate:
+        csr_path: "{{ csr_path }}"
+        path: "{{ cert_path }}"
+        provider: selfsigned
+        privatekey_path: "{{ private_key_path }}"
+        selfsigned_not_after: '+3650d'
+
+    - name: Remove certificate signing request
+      ansible.builtin.file:
+        path: "{{ csr_path }}"
+        state: absent

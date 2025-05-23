@@ -109,6 +109,11 @@
         name: provision
         tasks_from: root_basic_environment
 
+    - name: Configure a self-signed certificate
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: cert_selfsigned
+
 - name: "Provision: Management NDP VMs"
   hosts: ndp_management
   become: true
