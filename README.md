@@ -21,7 +21,7 @@ Ansible controller:
 1. Build the VM template using Hashicorp Packer.
 
    ```console
-   make build
+   make template
    ```
 1. Create clones from the VM template using Ansible.
 

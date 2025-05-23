@@ -29,16 +29,16 @@ help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -/]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
  
 .PHONY: init
-init: | venv-create ansible-inventory packer-init # Initializes the automation environment.
-
-.PHONY: build
-build: | packer-pkrvars-create packer-user-data-create packer-build # Builds the ubuntu-server-noble Packer template.
+init: | venv-create ansible-requirements ansible-inventory packer-init # Initializes the automation environment.
 
 .PHONY: clone
-clone: | ansible-vms-clone # Clones and starts VMs from the Packer template.
+clone: | ansible-vms-clone # Clones and starts VMs from the VM template.
 
 .PHONY: provision
 provision: | ansible-vms-provision # Provisions the VMs.
+
+.PHONY: template
+template: | packer-pkrvars-create packer-user-data-create packer-build # Builds the ubuntu-server-noble VM template with HashiCorp Packer.
 
 .PHONY: clean
 clean: | .confirm_clean venv-remove packer-pkrvars-remove packer-user-data-remove # Cleans up the automation environment.
@@ -61,6 +61,11 @@ ansible-lint: # Runs the Ansible linter.
 ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible inventory.
 	@echo ">>> Running Ansible ping test"
 	. $(ACTIVATE); ansible all -m ping
+
+.PHONY: ansible-requirements
+ansible-init: # Installs required Ansible Galaxy collections, etc.
+	@echo ">>> Running Ansible Galaxy to install required collections, etc."
+	. $(ACTIVATE); ansible-galaxy install -vvv -r $(CURDIR)/requirements.yml
 
 .PHONY: ansible-vms-clone
 ansible-vms-clone: # Clones and starts the VMs.

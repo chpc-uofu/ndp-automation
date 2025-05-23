@@ -1,6 +1,8 @@
 
 # Ansible
 .ansible/
+ansible/
+galaxy*
 hosts.yml
 inventory.yml
 
@@ -13,3 +15,6 @@ venv/
 # Secrets
 # ansible/inventory/hosts.yml
 secrets.pkrvars.hcl
+
+# Other
+*.lock
