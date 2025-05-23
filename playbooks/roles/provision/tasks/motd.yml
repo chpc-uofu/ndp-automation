@@ -1,0 +1,22 @@
+---
+
+- name: Disable MOTD message help text and news
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: touch
+    mode: '0644'
+    modification_time: preserve
+    access_time: preserve
+  loop:
+    - /etc/update-motd.d/10-help-text
+    - /etc/update-motd.d/50-motd-news
+  notify: restart-motd-timers
+
+- name: Apply our MOTD
+  ansible.builtin.template:
+    src: etc/update-motd.d/01-custom.j2
+    dest: /etc/update-motd.d/01-custom
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart-motd-timers

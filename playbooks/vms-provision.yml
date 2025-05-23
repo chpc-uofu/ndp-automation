@@ -21,6 +21,11 @@
         name: provision
         tasks_from: resolved
 
+    - name: Configure time
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: time
+
     - name: Update and upgrade existing apt packages
       ansible.builtin.apt:
         upgrade: true
@@ -36,9 +41,25 @@
         name: provision
         tasks_from: fail2ban
 
-    - name: Configure Tanium Client
+    # # Uncomment closer to production so we don't cause registration spam.
+    # - name: Configure Tanium Client
+    #   ansible.builtin.include_role:
+    #     name: tanium_client
+
+    - name: Configure mail
       ansible.builtin.include_role:
-        name: tanium_client
+        name: provision
+        tasks_from: mail
+
+    - name: Configure MOTD
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: motd
+
+    - name: Configure root basic environment
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: root_basic_environment
 
     - name: Ensure additional packages are present
       ansible.builtin.apt:
@@ -66,7 +87,7 @@
     - name: Configure campus authentication
       ansible.builtin.include_role:
         name: provision
-        tasks_from: campus-auth
+        tasks_from: campus_auth
 
     - name: "Update password for the local admin account: {{ local_admin_user }}"
       ansible.builtin.user:

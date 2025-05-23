@@ -1,0 +1,29 @@
+---
+
+- name: Ensure postfix package is present
+  ansible.builtin.apt:
+    name: postfix
+    state: present
+
+- name: Configure root's email to go somewhere useful
+  ansible.builtin.lineinfile:
+    path: "/etc/aliases"
+    regexp: "^root:$"
+    line: "root: {{ mail_root_email }}"
+    mode: '0644'
+  notify: update-aliases-database
+
+- name: Configure postfix to send outbound mail through our mail server
+  ansible.builtin.lineinfile:
+    path: "/etc/postfix/main.cf"
+    regexp: "^relayhost=$"
+    line: "relayhost={{ mail_relayhost }}"
+    mode: '0644'
+  notify: restart-postfix-service
+
+- name: Unmask, start, and enable postfix service
+  ansible.builtin.systemd_service:
+    name: postfix
+    state: started
+    masked: false
+    enabled: true

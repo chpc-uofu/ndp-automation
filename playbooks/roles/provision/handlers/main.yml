@@ -1,16 +1,31 @@
 ---
 
 - name: "(Handler) Restart fail2ban.service"
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: fail2ban.service
     state: restarted
   listen: restart-fail2ban-service
 
 - name: "(Handler) Reload firewalld.service"
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: firewalld
     state: reloaded
   listen: reload-firewalld-service
+
+- name: "(Handler) Restart MOTD timers"
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - motd-news.timer
+    - update-notifier-motd.timer
+  listen: restart-motd-timers
+
+- name: (Handler) Restart postfix.service
+  ansible.builtin.systemd_service:
+    name: postfix
+    state: restarted
+  listen: restart-postfix-service
 
 - name: "(Handler) Restart sssd.service"
   ansible.builtin.systemd_service:
@@ -23,3 +38,8 @@
     name: systemd-resolved.service
     state: restarted
   listen: restart-resolved-service
+
+- name: (Handler) Update aliases database
+  ansible.builtin.command: >-
+    /usr/bin/newaliases
+  listen: update-aliases-database

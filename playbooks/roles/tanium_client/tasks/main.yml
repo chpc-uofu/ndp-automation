@@ -4,7 +4,7 @@
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/preflight-checks.yml"
 
 - name: Distribution-specific tasks
-  when: falset tanium_client_minversion_requirements_met
+  when: not tanium_client_minversion_requirements_met
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/{{ ansible_distribution }}.yml"
 
 - name: Ensure service override directory is present

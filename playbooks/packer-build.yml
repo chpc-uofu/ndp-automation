@@ -22,7 +22,7 @@
         current_vm_templates: "{{ (current_vm_templates_info['results'] | map(attribute='proxmox_vms')) | flatten | map(attribute='vmid') }}"
 
     - name: Use Packer to build the VM templates
-      when: falset hostvars[item]['vm_id'] in current_vm_templates
+      when: not hostvars[item]['vm_id'] in current_vm_templates
       ansible.builtin.shell:
         chdir: "{{ playbook_dir }}/../packer/ubuntu-server-noble"
         cmd: >-

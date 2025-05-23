@@ -47,6 +47,9 @@ All variables described below are required and many may be specified at the host
 | `local_admin_password` | Local administrative account password. | `changeme` | inventory (required), host group (optional), host (optional) |
 | `ldap_search_base` | LDAP search base to apply to the `sssd` configuration. | `dc=dept,dc=my,dc=domain` | inventory, host group, host |
 | `ldap_uris` | List of LDAP URIs to apply to the `sssd` configuration. | `["ldap://ldap.my.domain","ldap://ldap2.my.domain"]` | inventory, host group, host |
+| `mail_relayhost` | Relayhost to apply to `postfix`. | `mail.my.domain` | inventory, host group, host |
+| `mail_root_email` | The email setting to be applied to the host's `root` account. | `root@my.domain` | inventory, host group, host |
+| `motd_body` | The Bash script used to generate the MOTD. | `printf "Lorem Ipsum"` | inventory, host group, host |
 | `ssh_admin_group` | The group allowed SSH and provisioned with administrative `sudo` capabilities. | `myadmingroup` | inventory, host group, host |
 | `ssh_allow_groups` | List of groups allowed SSH access. | `["mygroup"]` | inventory, host group, host |
 | `sudoers` | List of users with administrative `sudo` capabilities. | `["user1","user2"]` | inventory, host group, host |

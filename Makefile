@@ -53,9 +53,7 @@ ansible-inventory: # Generates the Ansible inventory file.
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/ansible-inventory.yml
 
 .PHONY: ansible-lint
-ansible-lint: # Runs the YAML linter followed by the Ansible linter.
-#   @echo ">>> Running YAML lint"
-#   . $(ACTIVATE); yamllint $(CURDIR)
+ansible-lint: # Runs the Ansible linter.
 	@echo ">>> Running Ansible lint"
 	. $(ACTIVATE); ansible-lint --force-color $(CURDIR)
 

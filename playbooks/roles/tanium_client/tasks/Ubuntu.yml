@@ -15,7 +15,7 @@
         mode: '0770'
 
     - name: "Download the Tanium client file: {{ tanium_client_filename_dat }}"
-      when: falset 'ComputerID' in _preflight_check_config
+      when: not 'ComputerID' in _preflight_check_config
       ansible.builtin.get_url:
         url: "{{ tanium_client_download_endpoint }}/{{ tanium_client_filename_dat }}"
         dest: "{{ tanium_client_download_destination }}"
@@ -38,7 +38,7 @@
       notify: restart-taniumclient-service
 
     - name: Copy the dat file to the install directory
-      when: falset 'ComputerID' in _preflight_check_config
+      when: not 'ComputerID' in _preflight_check_config
       ansible.builtin.copy:
         remote_src: true
         src: "{{ tanium_client_download_destination }}/{{ tanium_client_filename_dat }}"
