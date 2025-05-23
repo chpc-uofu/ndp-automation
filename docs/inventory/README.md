@@ -29,18 +29,18 @@ All variables described below are required and many may be specified at the host
 
 | Name | Description | Specification Levels |
 | ---  | ---         | ---                  |
-| `proxmox_node` | The Proxmox cluster node. | inventory, host group, host |
-| `proxmox_password` | The password Ansible uses when interacting with the Proxmox API. | inventory |
-| `proxmox_storage_pool` | The Proxmox storage pool. | inventory |
-| `proxmox_url` | The target host URL of the Proxmox cluster API. | inventory |
-| `proxmox_user` | The password used to authenticate with Proxmox API. | inventory |
+| `proxmox_api_password` | The password used when interacting with the Proxmox API. | inventory |
+| `proxmox_api_host` | The target host URL of the Proxmox cluster API. | inventory |
+| `proxmox_api_user` | The password used to authenticate with Proxmox API. | inventory |
+| `proxmox_node` | The Proxmox cluster node on which to operate. | inventory, host group, host |
+| `proxmox_storage_pool` | The Proxmox storage pool. | inventory, host group, host |
 | `proxmox_vm_cidr` | The CIDR for the VMs on Proxmox. Used by the firewall configuration of the `ndp_management` hosts. | inventory, host group, host |
 
 ### Additional
 
 | Name | Description | Example | Specification Levels |
 | ---  | ---         | ---     | ---                  |
-| `dns_domains` | DNS domain(s) to apply to the `resolved` configuration. | `"int.my.domain my.domain"` | inventory, host group, host |
+| `dns_domains` | List of DNS domain(s) to apply to the `resolved` configuration. | `["dept.my.domain","my.domain"]` | inventory, host group, host |
 | `krb5_realm` | Kerberos realm to apply to the `sssd` configuration. | `ad.my.domain` | inventory, host group, host |
 | `krb5_servers` | List of Kerberos servers to apply to the `sssd` configuration. | `["kdc1.my.domain:88","kdc2.my.domain:88"]` | inventory, host group, host |
 | `local_admin_user` | Local administrative account to create in the template. | `mylocaladmin` | inventory |

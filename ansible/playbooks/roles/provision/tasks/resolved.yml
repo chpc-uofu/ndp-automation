@@ -5,7 +5,7 @@
     path: /etc/systemd/resolved.conf
     section: Resolve
     option: Domains
-    value: "{{ dns_domains }}"
+    value: "{{ dns_domains | join(' ') }}"
     state: present
     create: no
   notify: restart-resolved-service

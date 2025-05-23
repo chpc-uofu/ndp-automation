@@ -9,10 +9,9 @@
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
       community.general.proxmox_vm_info:
-        api_user: "{{ proxmox_user }}"
-        api_password: "{{ proxmox_password }}"
-        api_host: "{{ proxmox_node }}"
-        # node: "{{ hostvars[item]['proxmox_node'] }}"  ## Want to look at all nodes.
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_password }}"
+        api_host: "{{ proxmox_api_host }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_templates'] }}"
@@ -29,6 +28,7 @@
         cmd: >-
           packer build \
             -var-file secrets.pkrvars.hcl \
+            -var proxmox_node={{ hostvars[item]['proxmox_node'] }} \
             -var proxmox_storage_pool={{ hostvars[item]['proxmox_storage_pool'] }} \
             -var vm_cpu_cores={{ hostvars[item]['vm_cpu_cores'] }} \
             -var vm_cpu_sockets={{ hostvars[item]['vm_cpu_sockets'] }} \
