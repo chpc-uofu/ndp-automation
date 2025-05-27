@@ -2,8 +2,7 @@
 # source ./venv/bin/activate
 # pip install -r requirements.txt
 
-ansible
-ansible-lint
+ansible-dev-tools
 passlib
 proxmoxer
 requests

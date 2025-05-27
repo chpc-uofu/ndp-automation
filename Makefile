@@ -55,7 +55,7 @@ ansible-inventory: # Generates the Ansible inventory file.
 .PHONY: ansible-lint
 ansible-lint: # Runs the Ansible linter.
 	@echo ">>> Running Ansible lint"
-	. $(ACTIVATE); ansible-lint --force-color $(CURDIR)
+	. $(ACTIVATE); ansible-lint --force-color --profile=production $(CURDIR)
 
 .PHONY: ansible-pingtest
 ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible inventory.
@@ -63,7 +63,7 @@ ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible invento
 	. $(ACTIVATE); ansible all -m ping
 
 .PHONY: ansible-requirements
-ansible-init: # Installs required Ansible Galaxy collections, etc.
+ansible-requirements: # Installs required Ansible Galaxy collections, etc.
 	@echo ">>> Running Ansible Galaxy to install required collections, etc."
 	. $(ACTIVATE); ansible-galaxy install -vvv -r $(CURDIR)/requirements.yml
 
@@ -105,7 +105,7 @@ packer-pkrvars-create: # Generates the Packer variables file.
 .PHONY: packer-pkrvars-remove
 packer-pkrvars-remove: # Removes the Packer variables file.
 	@echo ">>> Running Packer variables file removal"
-	rm $(CURDIR)/packer/ubuntu-server-noble/secrets.pkrvars.hcl
+	rm -f $(CURDIR)/packer/ubuntu-server-noble/secrets.pkrvars.hcl
 
 .PHONY: packer-user-data-create
 packer-user-data-create: # Generates the Packer variables file.
@@ -115,7 +115,7 @@ packer-user-data-create: # Generates the Packer variables file.
 .PHONY: packer-user-data-remove
 packer-user-data-remove: # Removes the Packer user-data file.
 	@echo ">>> Running Packer vuser-datariables file removal"
-	rm $(CURDIR)/packer/ubuntu-server-noble/http/user-data
+	rm -f $(CURDIR)/packer/ubuntu-server-noble/http/user-data
 
 # ---------------------------------------------------------
 # venv targets

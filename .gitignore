@@ -8,13 +8,10 @@ inventory.yml
 
 # Packer
 user-data
+secrets.pkrvars.hcl
 
 # Python
 venv/
-
-# Secrets
-# ansible/inventory/hosts.yml
-secrets.pkrvars.hcl
 
 # Other
 *.lock
