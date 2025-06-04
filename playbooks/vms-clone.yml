@@ -5,6 +5,10 @@
   gather_facts: false
 
   tasks:
+    - name: Set additional PVE facts
+      ansible.builtin.set_fact:
+        proxmox_api_user: "{{ proxmox_api_token_id | regex_search('(.+@.+)!.+', '\\1') }}"
+
     - name: Full clone from template
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
@@ -14,6 +18,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         clone: does-not-matter
         vmid: "{{ template_vm_id }}"
         newid: "{{ new_vm_id }}"
@@ -33,6 +38,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
@@ -50,6 +56,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         node: "{{ hostvars[item]['proxmox_node'] }}"
@@ -65,6 +72,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         disk: scsi0
         size: "{{ hostvars[item]['vm_os_disk_size'] }}"
@@ -77,6 +85,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         node: "{{ hostvars[item]['proxmox_node'] }}"
@@ -93,6 +102,7 @@
         api_host: "{{ proxmox_api_host }}"
         api_token_id: "{{ proxmox_api_token_id }}"
         api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         vmid: "{{ new_vm_id }}"
         state: started
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
