@@ -29,9 +29,9 @@ All variables described below are required and many may be specified at the host
 
 | Name | Description | Specification Levels |
 | ---  | ---         | ---                  |
-| `proxmox_api_password` | The password used when interacting with the Proxmox API. | inventory |
 | `proxmox_api_host` | The target host URL of the Proxmox cluster API. | inventory |
-| `proxmox_api_user` | The password used to authenticate with Proxmox API. | inventory |
+| `proxmox_api_token_id` | The token ID used to authenticate with Proxmox API. | inventory |
+| `proxmox_api_token_secret` | The token secret used when interacting with the Proxmox API. | inventory |
 | `proxmox_node` | The Proxmox cluster node on which to operate. | inventory, host group, host |
 | `proxmox_storage_pool` | The Proxmox storage pool. | inventory, host group, host |
 | `proxmox_vm_cidr` | The CIDR for the VMs on Proxmox. Used by the firewall configuration of the `ndp_management` hosts. | inventory, host group, host |
