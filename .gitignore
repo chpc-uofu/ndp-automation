@@ -15,3 +15,4 @@ venv/
 
 # Other
 *.lock
+.env
