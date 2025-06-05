@@ -5,10 +5,6 @@
   gather_facts: false
 
   tasks:
-    - name: Set additional PVE facts
-      ansible.builtin.set_fact:
-        proxmox_api_user: "{{ proxmox_api_token_id | regex_search('(.+@.+)!.+', '\\1') }}"
-
     - name: Retrieve information about specific VM by ID
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
