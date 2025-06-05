@@ -3,7 +3,7 @@ source "proxmox-iso" "ubuntu-server-noble" {
   # Connection Configuration
   proxmox_url               = "${var.proxmox_url}"
   username                  = "${var.proxmox_user}"
-  password                  = "${var.proxmox_password}"
+  token                     = "${var.proxmox_token}"
   insecure_skip_tls_verify  = "true"
   node                      = "${var.proxmox_node}"
   task_timeout              = "1m"

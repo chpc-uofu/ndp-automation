@@ -5,13 +5,18 @@
   gather_facts: false
 
   tasks:
+    - name: Set additional PVE facts
+      ansible.builtin.set_fact:
+        proxmox_api_user: "{{ proxmox_api_token_id | regex_search('(.+@.+)!.+', '\\1') }}"
+
     - name: Retrieve information about specific VM by ID
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
       community.general.proxmox_vm_info:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_templates'] }}"
@@ -26,7 +31,7 @@
       ansible.builtin.shell:
         chdir: "{{ playbook_dir }}/../packer/ubuntu-server-noble"
         cmd: >-
-          packer build \
+          /usr/bin/packer build \
             -var-file secrets.pkrvars.hcl \
             -var proxmox_node={{ hostvars[item]['proxmox_node'] }} \
             -var proxmox_storage_pool={{ hostvars[item]['proxmox_storage_pool'] }} \

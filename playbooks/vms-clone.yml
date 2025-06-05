@@ -5,15 +5,20 @@
   gather_facts: false
 
   tasks:
+    - name: Set additional PVE facts
+      ansible.builtin.set_fact:
+        proxmox_api_user: "{{ proxmox_api_token_id | regex_search('(.+@.+)!.+', '\\1') }}"
+
     - name: Full clone from template
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
         template_proxmox_node: "{{ hostvars[groups['ndp_templates'][0]]['proxmox_node'] }}"
         template_vm_id: "{{ hostvars[groups['ndp_templates'][0]]['vm_id'] }}"
       community.general.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         clone: does-not-matter
         vmid: "{{ template_vm_id }}"
         newid: "{{ new_vm_id }}"
@@ -30,9 +35,10 @@
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
       community.general.proxmox_vm_info:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
@@ -47,9 +53,10 @@
       vars:
         new_vm_mac_addr: "{{ hostvars[item]['vm_network_adapters_mac_address'] }}"
       community.general.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         node: "{{ hostvars[item]['proxmox_node'] }}"
@@ -62,9 +69,10 @@
     - name: Only resize disks for stopped VMs
       when: hostvars[item]['vm_id'] in current_vms_stopped
       community.general.proxmox_disk:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         disk: scsi0
         size: "{{ hostvars[item]['vm_os_disk_size'] }}"
@@ -74,9 +82,10 @@
     - name: Only update CPU and Memory for stopped VMs
       when: hostvars[item]['vm_id'] in current_vms_stopped
       community.general.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         node: "{{ hostvars[item]['proxmox_node'] }}"
@@ -90,9 +99,10 @@
       vars:
         new_vm_id: "{{ hostvars[item]['vm_id'] }}"
       community.general.proxmox_kvm:
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
         api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
         vmid: "{{ new_vm_id }}"
         state: started
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"

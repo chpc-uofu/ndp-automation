@@ -6,11 +6,11 @@ variable "proxmox_url" {
 
 variable "proxmox_user" {
   type      = string
-  default   = "apiuser@pve"
+  default   = "xxxx"
   sensitive = true
 }
 
-variable "proxmox_password" {
+variable "proxmox_token" {
   type      = string
   default   = "supersecret"
   sensitive = true
