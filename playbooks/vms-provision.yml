@@ -46,14 +46,14 @@
         name: provision
         tasks_from: syslog
 
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: firewalld
+
     - name: Update and upgrade existing system packages
       ansible.builtin.apt:
         upgrade: true
         update_cache: true
-
-    - name: Configure firewall
-      ansible.builtin.include_role:
-        name: firewalld
 
     - name: Configure fail2ban
       ansible.builtin.include_role:
@@ -65,15 +65,10 @@
     #   ansible.builtin.include_role:
     #     name: tanium_client
 
-    - name: Ensure additional packages are present
+    - name: Ensure additional general packages are present
       ansible.builtin.apt:
         name:
-          - bind9-dnsutils
-          - iputils-ping
-          - ldap-utils
-          - sssd-ldap
           - tlslookup
-          - vim
         state: present
 
     - name: Install additional snaps
@@ -87,6 +82,11 @@
       loop_control:
         label: "{{ snap['name'] }}"
         loop_var: snap
+
+    - name: Configure Docker
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: docker
 
     - name: Configure campus authentication
       ansible.builtin.include_role:

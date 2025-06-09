@@ -1,5 +1,12 @@
 ---
 
+- name: Ensure additional packages are present
+  ansible.builtin.apt:
+    name:
+      - ldap-utils
+      - sssd-ldap
+    state: present
+
 - name: "Apply Kdcinfo file for: {{ krb5_realm | upper }}"
   ansible.builtin.template:
     src: "var/lib/sss/pubconf/kdcinfo.xxxx.j2"

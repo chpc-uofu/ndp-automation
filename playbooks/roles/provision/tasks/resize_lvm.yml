@@ -19,9 +19,9 @@
     - "not 'NOCHANGE' in growpart_result['stdout']"
 
 - name: Extend the logical volume and resize the filesystem
+  when: "not 'NOCHANGE' in growpart_result['stdout']"
   ansible.builtin.shell:
     cmd: |-
-      set -o pipefail
       /usr/sbin/lvextend -r -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
   args:
     executable: /bin/bash
