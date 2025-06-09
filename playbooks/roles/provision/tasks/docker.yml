@@ -1,0 +1,42 @@
+---
+
+- name: Install the Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add the Docker APT repo
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable   # noqa yaml[line-length]
+    state: present
+
+- name: Ensure the latest DockerCE packages are present
+  ansible.builtin.apt:
+    name:
+      - containerd.io
+      # - docker-buildx-plugin
+      - docker-ce
+      - docker-ce-cli
+      # - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Unmask, start and enable docker.service
+  ansible.builtin.systemd_service:
+    name: docker.service
+    state: started
+    enabled: true
+    masked: false
+
+- name: Unmask, start and enable containerd.service
+  ansible.builtin.systemd_service:
+    name: containerd.service
+    state: started
+    enabled: true
+    masked: false
+
+- name: Verify Docker is working
+  community.docker.docker_container:
+    name: helloworld
+    image: hello-world
+  changed_when: false # only care if this errors
