@@ -67,6 +67,11 @@ ansible-requirements: # Installs required Ansible Galaxy collections, etc.
 	@echo ">>> Running Ansible Galaxy to install required collections, etc."
 	. $(ACTIVATE); ansible-galaxy install -vvv -r $(CURDIR)/requirements.yml
 
+.PHONY: ansible-vms-create
+ansible-vms-create: # Creates and starts the VMs.
+	@echo ">>> Running the VMs create"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml
+
 .PHONY: ansible-vms-clone
 ansible-vms-clone: # Clones and starts the VMs.
 	@echo ">>> Running the VMs clone"
