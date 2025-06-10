@@ -44,7 +44,7 @@
 
         # Boot Configuration
         bios: ovmf
-        bootdisk: scsi1
+        bootdisk: scsi0
         efidisk0:
           storage: "{{ vm_storage_pool }}"
           format: raw
@@ -54,7 +54,6 @@
         # Hardware Configuration
         cpu: host
         sockets: 1
-        # vcpus: 1
         cores: 2
         memory: 4096
 
@@ -65,6 +64,8 @@
         # VM Configuration
         agent: true
         format: raw
+        ide:
+          ide2: "{{ hostvars[item]['proxmox_storage_pool'] }}:cloudinit,format=raw"
         ipconfig:
           ipconfig0: 'ip=dhcp'
         net:
@@ -72,8 +73,7 @@
         node: "{{ hostvars[item]['proxmox_node'] }}"
         ostype: l26
         scsi:
-          scsi0: '{{ vm_storage_pool }}:{{ vm_disk_size }},format=raw'
-          scsi1: 'local:iso/ubuntu-24.04.2-live-server-amd64.iso,media=cdrom'
+          scsi0: '{{ vm_storage_pool }}:{{ vm_disk_size }},iothread=1,discard=on,import-from=/var/lib/vz/template/iso/ubuntu-24.04.2-live-server-amd64.iso,format=raw'
         scsihw: virtio-scsi-pci
         storage: "{{ vm_storage_pool }}"
         vga: std
@@ -102,7 +102,7 @@
 
         # VM Configuration
         citype: nocloud
-        cicustom: "{{ hostvars[item]['cicustom'] }}"
+        cicustom: "user=local:snippets/{{ hostvars[item]['vm_id'] }}-user-data.yml"
         node: "{{ hostvars[item]['proxmox_node'] }}"
         update: true
 
