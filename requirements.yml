@@ -1,0 +1,7 @@
+
+collections:
+  - ansible.posix
+  - community.crypto
+  - community.docker
+  - community.general
+  - prometheus.prometheus

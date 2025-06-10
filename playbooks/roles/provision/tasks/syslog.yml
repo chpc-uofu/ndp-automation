@@ -1,0 +1,43 @@
+---
+
+- name: Ensure logrotate rotate parameter comment up-to-date
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.conf
+    regexp: "^# keep (\\d+) weeks worth of backlogs$"
+    line: "# keep 312 weeks worth of backlogs"
+    state: present
+
+- name: "Change logrotate to keep previous logs for weeks: 312"
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.conf
+    regexp: "^rotate.*$"
+    line: "rotate 312"
+
+- name: Ensure compression is enabled for logrotate
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.conf
+    regexp: "^(#\\s*)?compress(.*)?$"
+    line: "compress"
+
+- name: Ensure rsyslog package is present
+  ansible.builtin.apt:
+    name: rsyslog
+    state: present
+
+- name: Add our rsyslog config file
+  ansible.builtin.template:
+    src: etc/rsyslog.d/central.conf.j2
+    dest: /etc/rsyslog.d/central.conf
+    owner: root
+    group: root
+    mode: '0644'
+    ## NOTE: Following fails during file creation for unknown reason.
+    # validate: /usr/sbin/rsyslogd -N1 -f %s
+  notify: restart-rsyslog-service
+
+- name: Unmask, start and enable rsyslog.service
+  ansible.builtin.systemd_service:
+    name: rsyslog.service
+    state: started
+    enabled: true
+    masked: false

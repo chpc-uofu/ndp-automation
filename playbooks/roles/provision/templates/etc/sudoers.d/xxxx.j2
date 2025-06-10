@@ -1,0 +1,7 @@
+{{ ansible_managed | comment }}
+
+{% if item['sudoer'] is defined %}
+{{ item['sudoer'] }}  ALL=(ALL) NOPASSWD:ALL
+{% else %}
+{{ item }}  ALL=(ALL) NOPASSWD:ALL
+{% endif %}

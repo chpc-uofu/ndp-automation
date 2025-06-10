@@ -1,0 +1,4 @@
+{{ ansible_managed | comment }}
+
+# Set machines to ALSO remote syslog to central server.
+*.*   @{{ syslog_ipv4 }}

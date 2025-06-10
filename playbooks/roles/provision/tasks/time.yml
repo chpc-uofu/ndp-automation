@@ -1,0 +1,5 @@
+---
+
+- name: "Set timezone to: America/Denver"
+  community.general.timezone:
+    name: "America/Denver"

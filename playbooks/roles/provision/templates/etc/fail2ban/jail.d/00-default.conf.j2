@@ -1,0 +1,9 @@
+
+{{ ansible_managed | comment }}
+
+[DEFAULT]
+bantime = 2h
+ignoreip = {{ proxmox_vm_cidr }}
+ignoreself = true
+findtime = 5m
+maxretry = 10

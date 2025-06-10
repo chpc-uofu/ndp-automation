@@ -1,3 +1,0 @@
----
-
-packer_install_apt_signing_key: "https://apt.releases.hashicorp.com/gpg"

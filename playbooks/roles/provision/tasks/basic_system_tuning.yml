@@ -1,0 +1,18 @@
+---
+
+- name: Bump up the filesystem max filesize
+  ansible.posix.sysctl:
+    name: fs.file-max
+    value: 512000
+    state: present
+    reload: true
+
+- name: Apply filesystem limits
+  ansible.builtin.blockinfile:
+    path: /etc/security/limits.conf
+    block: |
+      #<domain>    <type>    <item>    <value>
+      *            soft      nofile    6000
+      *            hard      nofile    65535
+    insertafter: EOF
+    create: false

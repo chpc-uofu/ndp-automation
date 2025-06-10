@@ -1,0 +1,17 @@
+---
+
+- name: Set root's VIM settings
+  ansible.builtin.template:
+    src: root/.vimrc.j2
+    dest: /root/.vimrc
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set root's screen settings
+  ansible.builtin.template:
+    src: root/.screenrc.j2
+    dest: /root/.screenrc
+    owner: root
+    group: root
+    mode: '0644'

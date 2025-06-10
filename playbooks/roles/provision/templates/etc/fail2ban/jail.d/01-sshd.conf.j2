@@ -1,0 +1,16 @@
+
+{{ ansible_managed | comment }}
+
+[sshd]
+enabled = true
+filter = sshd
+bantime = 1h
+findtime = 30m
+maxretry = 20
+
+[sshd-level2]
+enabled = true
+filter = sshd
+bantime = 1w
+findtime = 1d
+maxretry = 100

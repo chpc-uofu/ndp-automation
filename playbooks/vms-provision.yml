@@ -1,0 +1,140 @@
+---
+
+- name: "Provision: All NDP VMs"
+  hosts: ndp_management,ndp_vms
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Configure physical partitions and logical volumes/groups
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: resize_lvm
+
+    - name: Set the static hostname
+      ansible.builtin.command: >-
+        /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
+      changed_when: false
+
+    - name: Configure DNS
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: resolved
+
+    - name: Configure time
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: time
+
+    - name: Configure basic system tuning
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: basic_system_tuning
+
+    - name: Configure mail
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: mail
+
+    - name: Configure MOTD
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: motd
+
+    - name: Configure syslog
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: syslog
+
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: firewalld
+
+    - name: Update and upgrade existing system packages
+      ansible.builtin.apt:
+        upgrade: true
+        update_cache: true
+
+    - name: Configure fail2ban
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: fail2ban
+
+    # # Uncomment closer to production so we don't cause registration spam.
+    # - name: Configure Tanium Client
+    #   ansible.builtin.include_role:
+    #     name: tanium_client
+
+    - name: Ensure additional general packages are present
+      ansible.builtin.apt:
+        name:
+          - tlslookup
+        state: present
+
+    - name: Install additional snaps
+      when: snaps is defined
+      community.general.snap:
+        name: "{{ snap['name'] }}"
+        classic: "{{ snap['classic'] | default(omit) }}"
+        channel: "{{ snap['channel'] | default(omit) }}"
+        state: present
+      loop: "{{ snaps }}"
+      loop_control:
+        label: "{{ snap['name'] }}"
+        loop_var: snap
+
+    - name: Configure Docker
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: docker
+
+    - name: Configure campus authentication
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: campus_auth
+
+    - name: "Update password for the local admin account: {{ local_admin_user }}"
+      ansible.builtin.user:
+        name: "{{ local_admin_user }}"
+        password: "{{ local_admin_password | password_hash('sha512', 'mysecretsalt') }}"
+
+    - name: Configure sudoers
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: sudoers
+
+    - name: Configure root basic environment
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: root_basic_environment
+
+    - name: Configure a self-signed certificate
+      ansible.builtin.include_role:
+        name: provision
+        tasks_from: cert_selfsigned
+
+    - name: Configure the Prometheus Node Exporter
+      vars:
+        node_exporter_enabled_collectors:
+          - systemd:
+              unit-include: '(ssh|sssd).service'
+      ansible.builtin.include_role:
+        name: prometheus.prometheus.node_exporter
+
+- name: "Provision: Management NDP VMs"
+  hosts: ndp_management
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Install and configure HashiCorp Packer
+      ansible.builtin.include_role:
+        name: packer_install
+
+    - name: Ensure additional packages are present
+      ansible.builtin.apt:
+        name:
+          - make
+          - python3.12-venv
+          - sshpass
+        state: present
