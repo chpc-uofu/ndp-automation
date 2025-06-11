@@ -3,6 +3,7 @@
 - name: Create new NDP VMs
   hosts: 127.0.0.1
   connection: local
+  serial: 1
   gather_facts: false
 
   tasks:
@@ -24,7 +25,7 @@
       ansible.builtin.set_fact:
         current_vms: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | map(attribute='vmid') }}"
 
-    - name: Create VMs
+    - name: Create new VMs
       when: not hostvars[item]['vm_id'] in current_vms
       vars:
         vm_mac_addr: "{{ hostvars[item]['vm_network_adapters_mac_address'] }}"
@@ -43,9 +44,9 @@
 
         # Hardware Configuration
         cpu: host
-        sockets: 1
-        cores: 2
-        memory: 4096
+        sockets: "{{ hostvars[item]['vm_cpu_sockets'] }}"
+        cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
+        memory: "{{ hostvars[item]['vm_memory'] }}"
 
         # VM Configuration
         net:
@@ -56,12 +57,16 @@
       # retries: 10
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
+    - name: Set additional facts
+      ansible.builtin.set_fact:
+        created_vm_ids: "{{ (created_vms['results'] | map(attribute='vmid')) }}"
+
 # - name: Import the disk to Proxmox
 #       ansible.builtin.shell: |
 #         qm importdisk {{ vm_id }} {{ cloud_image_storage }}/{{ cloud_image_name }} {{ proxmox_storage }}
 
     - name: Attach disks to VMs
-      when: not hostvars[item]['vm_id'] in current_vms
+      when: hostvars[item]['vm_id'] in created_vm_ids
       vars:
         vm_id: "{{ hostvars[item]['vm_id'] }}"
         vm_storage_pool: "{{ hostvars[item]['proxmox_storage_pool'] }}"
@@ -75,24 +80,35 @@
         timeout: 3000
 
         # Location Configuration
-        name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ vm_id }}"
 
         # VM Configuration
         node: "{{ hostvars[item]['proxmox_node'] }}"
         ostype: l26
         scsi:
-          scsi0: "{{ vm_storage_pool }}:vm-{{ vm_id }}-disk-0"
+          scsi0: "{{ vm_storage_pool }}:0,import-from=/var/lib/vz/template/iso/ubuntu-24.04-server-cloudimg-amd64.img"
+          # scsi0: "{{ vm_storage_pool }}:vm-{{ vm_id }}-disk-0"
         scsihw: virtio-scsi-pci
         update: true
         update_unsafe: true
       register: attach_disks
-      # until: attach_disks is not failed
-      # retries: 10
+      async: 6000
+      poll: 0
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
+    - debug:
+        var: attach_disks
+
+    # - name: Wait until previous processes are complete
+    #   ansible.builtin.async_status:
+    #     jid: "{{ attach_disks.ansible_job_id }}"
+    #   register: attach_disks_results
+    #   until: attach_disks_results.finished
+    #   retries: 20
+    #   delay: 30
+
     - name: Additionally configure VMs
-      when: not hostvars[item]['vm_id'] in current_vms
+      when: hostvars[item]['vm_id'] in created_vm_ids
       community.general.proxmox_kvm:
         # Connection configuration
         api_host: "{{ proxmox_api_host }}"
@@ -103,7 +119,6 @@
         timeout: 3000
 
         # Location Configuration
-        name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
 
         # Boot Configuration
@@ -130,7 +145,7 @@
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
     - name: Enable UEFI for VMs
-      when: not hostvars[item]['vm_id'] in current_vms
+      when: hostvars[item]['vm_id'] in created_vm_ids
       vars:
         vm_storage_pool: "{{ hostvars[item]['proxmox_storage_pool'] }}"
       community.general.proxmox_kvm:
@@ -164,7 +179,7 @@
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
     - name: Resize disks
-      when: not hostvars[item]['vm_id'] in current_vms
+      when: hostvars[item]['vm_id'] in created_vm_ids
       community.general.proxmox_disk:
         # Connection configuration
         api_host: "{{ proxmox_api_host }}"
@@ -199,37 +214,3 @@
         vmid: "{{ new_vm_id }}"
         state: started
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
-
-    # - name: Set additional facts
-    #   ansible.builtin.set_fact:
-    #     created_vm_ids: "{{ created_vms['results'] | selectattr('changed') | map(attribute='vmid') }}"
-
-    # - name: Only forcibly update cloud-init for newly created VMs
-    #   when: hostvars[item]['vm_id'] in created_vm_ids
-    #   vars:
-    #   community.general.proxmox_kvm:
-    #     # Connection configuration
-    #     api_host: "{{ proxmox_api_host }}"
-    #     # api_token_id: "{{ proxmox_api_token_id }}"
-    #     # api_token_secret: "{{ proxmox_api_token_secret }}"
-    #     api_user: "{{ proxmox_api_user }}"
-    #     api_password: "{{ proxmox_api_password }}"
-    #     timeout: 3000
-
-    #     # Location Configuration
-    #     vmid: "{{ hostvars[item]['vm_id'] }}"
-
-    #     # VM Configuration
-    #     citype: nocloud
-    #     cicustom: "user=local:snippets/{{ hostvars[item]['vm_id'] }}-user-data.yml"
-    #     node: "{{ hostvars[item]['proxmox_node'] }}"
-    #     update: true
-
-    #   register: ci_enabled_vms
-    #   # until: ci_enabled_vms is not failed
-    #   # retries: 10
-    #   loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
-
-    # - name: Set additional facts
-    #   ansible.builtin.set_fact:
-    #     ci_enabled_vm_ids: "{{ ci_enabled_vms['results'] | selectattr('changed') | map(attribute='vmid') }}"
