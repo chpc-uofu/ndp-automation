@@ -28,7 +28,9 @@
     - name: Create new VMs
       when: not hostvars[item]['vm_id'] in current_vms
       vars:
+        vm_id: "{{ hostvars[item]['vm_id'] }}"
         vm_mac_addr: "{{ hostvars[item]['vm_network_adapters_mac_address'] }}"
+        vm_storage_pool: "{{ hostvars[item]['proxmox_storage_pool'] }}"
       community.general.proxmox_kvm:
         # Connection configuration
         api_host: "{{ proxmox_api_host }}"
@@ -40,7 +42,7 @@
 
         # Location Configuration
         name: "{{ hostvars[item]['inventory_hostname'] }}"
-        vmid: "{{ hostvars[item]['vm_id'] }}"
+        vmid: "{{ vm_id }}"
 
         # Hardware Configuration
         cpu: host
@@ -48,138 +50,47 @@
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
         memory: "{{ hostvars[item]['vm_memory'] }}"
 
-        # VM Configuration
-        net:
-          net0: 'virtio={{ vm_mac_addr }},bridge=vmbr1,tag=1702'
-        node: "{{ hostvars[item]['proxmox_node'] }}"
-      register: created_vms
-      # until: created_vms is not failed
-      # retries: 10
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
-
-    - name: Set additional facts
-      ansible.builtin.set_fact:
-        created_vm_ids: "{{ (created_vms['results'] | map(attribute='vmid')) }}"
-
-# - name: Import the disk to Proxmox
-#       ansible.builtin.shell: |
-#         qm importdisk {{ vm_id }} {{ cloud_image_storage }}/{{ cloud_image_name }} {{ proxmox_storage }}
-
-    - name: Attach disks to VMs
-      when: hostvars[item]['vm_id'] in created_vm_ids
-      vars:
-        vm_id: "{{ hostvars[item]['vm_id'] }}"
-        vm_storage_pool: "{{ hostvars[item]['proxmox_storage_pool'] }}"
-      community.general.proxmox_kvm:
-        # Connection configuration
-        api_host: "{{ proxmox_api_host }}"
-        # api_token_id: "{{ proxmox_api_token_id }}"
-        # api_token_secret: "{{ proxmox_api_token_secret }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        timeout: 3000
-
-        # Location Configuration
-        vmid: "{{ vm_id }}"
-
-        # VM Configuration
-        node: "{{ hostvars[item]['proxmox_node'] }}"
-        ostype: l26
-        scsi:
-          scsi0: "{{ vm_storage_pool }}:0,import-from=/var/lib/vz/template/iso/ubuntu-24.04-server-cloudimg-amd64.img"
-          # scsi0: "{{ vm_storage_pool }}:vm-{{ vm_id }}-disk-0"
-        scsihw: virtio-scsi-pci
-        update: true
-        update_unsafe: true
-      register: attach_disks
-      async: 6000
-      poll: 0
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
-
-    - debug:
-        var: attach_disks
-
-    # - name: Wait until previous processes are complete
-    #   ansible.builtin.async_status:
-    #     jid: "{{ attach_disks.ansible_job_id }}"
-    #   register: attach_disks_results
-    #   until: attach_disks_results.finished
-    #   retries: 20
-    #   delay: 30
-
-    - name: Additionally configure VMs
-      when: hostvars[item]['vm_id'] in created_vm_ids
-      community.general.proxmox_kvm:
-        # Connection configuration
-        api_host: "{{ proxmox_api_host }}"
-        # api_token_id: "{{ proxmox_api_token_id }}"
-        # api_token_secret: "{{ proxmox_api_token_secret }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        timeout: 3000
-
-        # Location Configuration
-        vmid: "{{ hostvars[item]['vm_id'] }}"
-
-        # Boot Configuration
-        boot: "order=scsi0"
-        # bootdisk: scsi0
-
-        # VM Configuration
-        agent: true
-        citype: nocloud
-        cicustom: "user=local:snippets/{{ hostvars[item]['vm_id'] }}-user-data.yml"
-        ide:
-          ide2: "{{ hostvars[item]['proxmox_storage_pool'] }}:cloudinit"
-        ipconfig:
-          ipconfig0: 'ip=dhcp'
-        node: "{{ hostvars[item]['proxmox_node'] }}"
-        serial:
-          serial0: socket
-        vga: serial0
-        update: true
-        update_unsafe: true
-      register: cloud_init
-      # until: cloud_init is not failed
-      # retries: 10
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
-
-    - name: Enable UEFI for VMs
-      when: hostvars[item]['vm_id'] in created_vm_ids
-      vars:
-        vm_storage_pool: "{{ hostvars[item]['proxmox_storage_pool'] }}"
-      community.general.proxmox_kvm:
-        # Connection configuration
-        api_host: "{{ proxmox_api_host }}"
-        # api_token_id: "{{ proxmox_api_token_id }}"
-        # api_token_secret: "{{ proxmox_api_token_secret }}"
-        api_user: "{{ proxmox_api_user }}"
-        api_password: "{{ proxmox_api_password }}"
-        timeout: 3000
-
-        # Location Configuration
-        name: "{{ hostvars[item]['inventory_hostname'] }}"
-        vmid: "{{ hostvars[item]['vm_id'] }}"
-
         # Boot Configuration
         bios: ovmf
+        boot: "order=scsi0"
+        # bootdisk: scsi0
         efidisk0:
           storage: "{{ vm_storage_pool }}"
           format: raw
           efitype: 4m
           pre_enrolled_keys: false
-        update: true
-        update_unsafe: true
 
         # VM Configuration
+        agent: true
+        cicustom: "user=local:snippets/{{ vm_id }}-user-data.yml"
+        cipassword: "{{ ansible_password }}"
+        citype: nocloud
+        ciuser: "{{ ansible_user }}"
+        ide:
+          ide2: "{{ hostvars[item]['proxmox_storage_pool'] }}:cloudinit"
+        ipconfig:
+          ipconfig0: 'ip=dhcp'
+        net:
+          net0: 'virtio={{ vm_mac_addr }},bridge=vmbr1,tag=1702'
         node: "{{ hostvars[item]['proxmox_node'] }}"
-      register: uefi_vms
-      # until: uefi_vms is not failed
+        ostype: l26
+        scsi:
+          scsi0: "{{ vm_storage_pool }}:0,import-from=/var/lib/vz/template/iso/ubuntu-24.04-server-cloudimg-amd64.img"
+        scsihw: virtio-scsi-pci
+        serial:
+          serial0: socket
+        sshkeys: "{{ ci_ssh_key }}"
+        vga: serial0
+      register: created_vms
+      # until: created_vms is not failed
       # retries: 10
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
 
     - name: Resize disks
-      when: hostvars[item]['vm_id'] in created_vm_ids
+      when:
+        - created_vms['changed']
+        - hostvars[item]['vm_id'] in (created_vms['results'] | map(attribute='vmid'))
+      # when: hostvars[item]['vm_id'] in created_vm_ids
       community.general.proxmox_disk:
         # Connection configuration
         api_host: "{{ proxmox_api_host }}"
