@@ -66,6 +66,11 @@ source "proxmox-iso" "ubuntu-server-noble" {
   }
   os                        = "l26"
   qemu_agent                = "true"
+  rng0 {
+    source                  = "/dev/urandom"
+    max_bytes               = 1024
+    period                  = 1000
+  }
   scsi_controller           = "virtio-scsi-pci"
   template_name             = "${var.vm_name_ubuntu}"
   template_description      = "${var.vm_description_ubuntu}"
