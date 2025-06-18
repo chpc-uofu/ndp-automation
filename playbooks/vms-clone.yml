@@ -85,7 +85,6 @@
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         node: "{{ hostvars[item]['proxmox_node'] }}"
-        sockets: "{{ hostvars[item]['vm_cpu_sockets'] }}"
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
         memory: "{{ hostvars[item]['vm_memory'] }}"
         update: true
