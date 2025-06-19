@@ -6,6 +6,12 @@ galaxy*
 hosts.yml
 inventory.yml
 
+# mkosi
+.#*
+image
+image.*
+mkosi.rootpw
+
 # Packer
 user-data
 secrets.pkrvars.hcl

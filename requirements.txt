@@ -7,3 +7,5 @@ passlib
 proxmoxer
 requests
 yamllint
+
+git+https://github.com/systemd/mkosi.git@v25.3

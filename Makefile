@@ -78,6 +78,15 @@ ansible-vms-provision: # Provisions the VMs.
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml
 
 # ---------------------------------------------------------
+# mkosi targets
+# ---------------------------------------------------------
+
+.PHONY: mkosi-build
+mkosi-build: # Builds the xxxx.
+	@echo ">>> asdfasdfasdf"
+	. $(ACTIVATE); mkosi --distribution ubuntu build
+
+# ---------------------------------------------------------
 # Packer targets
 # ---------------------------------------------------------
 

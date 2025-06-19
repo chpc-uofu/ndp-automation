@@ -45,6 +45,13 @@ HashiCorp Packer:
 * [Autoinstall configuration reference manual](https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html)
 * [curtin storage examples](https://curtin.readthedocs.io/en/latest/topics/storage.html#lvm)
 
+mkosi:
+* [mkosi — Build Bespoke OS Images](https://github.com/systemd/mkosi)
+* [A re-introduction to mkosi -- A Tool for Generating OS Images](https://0pointer.net/blog/a-re-introduction-to-mkosi-a-tool-for-generating-os-images.html)
+* [GitHub: krystofl/mkosi-for-ubuntu](https://github.com/krystofl/mkosi-for-ubuntu/blob/master/mkosi.default)
+* [mkosi — A Tool for Generating OS Images](https://0pointer.net/blog/mkosi-a-tool-for-generating-os-images.html)
+* [manpages: mkosi](https://manpages.debian.org/unstable/mkosi/mkosi.1.en.html)
+
 Ansible:
 * [Proxmox forums: Provision VM from template using ansible.](https://forum.proxmox.com/threads/provision-vm-from-template-using-ansible.130596/)
 * [community.general.proxmox_kvm module](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html)
