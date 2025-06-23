@@ -85,7 +85,7 @@ ansible-vms-provision: # Provisions the VMs.
 mkosi-build: # Builds the ubuntu-server-noble raw disk image.
 	@echo ">>> Building the raw disk image for ubuntu-server-noble"
 	@echo $(PWD)
-	. $(ACTIVATE); mkosi --debug --directory $(PWD)/mkosi --distribution ubuntu build
+	. $(ACTIVATE); mkosi --directory $(PWD)/mkosi --distribution ubuntu build
 
 # ---------------------------------------------------------
 # Packer targets
