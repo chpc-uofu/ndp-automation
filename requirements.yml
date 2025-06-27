@@ -4,4 +4,5 @@ collections:
   - community.crypto
   - community.docker
   - community.general
+  - community.proxmox
   - prometheus.prometheus
