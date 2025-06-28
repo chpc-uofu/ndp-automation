@@ -101,7 +101,7 @@
           register: rng_update
           changed_when: true
           failed_when: rng_update['status'] != 200
-          # no_log: true # prevents secrets exposure in plain-text logs
+          no_log: true # prevents secrets exposure in plain-text logs
       always:
         - name: Display API call results without secrets
           ansible.builtin.debug:
