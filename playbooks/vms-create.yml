@@ -28,7 +28,7 @@
 
         # VM config
         agent: true
-        # args: '--rng0 "source=/dev/urandom,max_bytes=1024,period=1000"'  ## apparently requires root
+        # args: '--rng0 "source=/dev/urandom,max_bytes=1024,period=1000"'  ## apparently requires root@pam
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
         cpu: "x86-64-v2-AES"
         description: "{{ hostvars[item]['vm_description_ubuntu'] }}"
@@ -60,6 +60,57 @@
         vmid: "{{ new_vm_id }}"
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
       register: current_vms_info
+
+
+# curl -H "Authorization: PVEAPIToken=user@realm!tokenid=UUID" \
+#      --data-urlencode "rng=virtio[,rate=...]" \
+#      https://your-proxmox-host:8006/api2/json/nodes/your-node/qemu/your-vmid/config
+
+
+    - name: Set additional facts
+      ansible.builtin.set_fact:
+        current_vms_stopped: "{{ (current_vms_info['results'] | map(attribute='proxmox_vms')) | flatten | selectattr('status', 'eq', 'stopped') | map(attribute='vmid') }}"   # noqa yaml[line-length]
+
+    # - name: Get stopped VM info
+    #   when: hostvars[item]['vm_id'] in current_vms_stopped
+    #   ansible.builtin.uri:
+    #     url: "https://{{ proxmox_api_host }}:8006/api2/json/nodes/{{ hostvars[item]['proxmox_node'] }}/qemu/{{ hostvars[item]['vm_id'] }}/config"
+    #     method: GET
+    #     headers:
+    #       Authorization: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
+    #     return_content: true
+    #     validate_certs: false
+    #   loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+
+    - name: Ensure VirtIO RNG that is required for PXE is set for stopped VMs
+      block:
+        - name: Ensure VirtIO RNG that is required for PXE is set for stopped VMs
+          when: hostvars[item]['vm_id'] in current_vms_stopped
+          ansible.builtin.uri:
+            url: "https://{{ proxmox_api_host }}:8006/api2/json/nodes/{{ hostvars[item]['proxmox_node'] }}/qemu/{{ hostvars[item]['vm_id'] }}/config"
+            method: POST
+            headers:
+              Authorization: "PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}"
+            body_format: form-urlencoded
+            body:
+              banana: true
+              rng0: "source=/dev/urandom,max_bytes=1024,period=1000"
+            return_content: false
+            validate_certs: false
+          loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+          register: rng_update
+          changed_when: true
+          failed_when: rng_update['status'] != 200
+          # no_log: true # prevents secrets exposure in plain-text logs
+      always:
+        - name: Display API call results without secrets
+          ansible.builtin.debug:
+            msg: >-
+              {% set output = [] %}
+              {% for result in rng_update['results'] %}
+              {{ output.append(result['item'] + ': ' + result['msg']) }}
+              {% endfor %}
+              {{ output }}
 
     - name: Ensure VMs are started
       vars:
