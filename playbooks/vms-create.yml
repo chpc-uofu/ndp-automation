@@ -90,7 +90,7 @@
             msg: >-
               {% set output = [] %}
               {% for result in rng_update['results'] %}
-              {{ output.append(result['item'] + ': ' + result['msg']) }}
+              {{ output.append(result['item'] + ': ' + (result['msg']) | default("N/A")) }}
               {% endfor %}
               {{ output }}
 
