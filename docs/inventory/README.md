@@ -22,7 +22,7 @@ All variables described below are required and many may be specified at the host
 | Name | Description | Specification Levels |
 | ---  | ---         | ---                  |
 | `ansible_user` | The user Ansible ‘logs in’ as. | inventory |
-| `ansible_password` | The password Ansible uses during login. | inventory |
+| `ansible_ssh_private_key_file` | The private key file Ansible uses during login. | inventory |
 | `ansible_sudo_pass` | The password Ansible uses with `sudo`. | inventory |
 
 ### Proxmox

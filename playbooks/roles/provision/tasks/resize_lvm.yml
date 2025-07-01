@@ -5,21 +5,7 @@
     msg: "{{ ansible_lvm }}"
     verbosity: 3
 
-- name: Grow /dev/sda3 to fill all available space
-  ansible.builtin.shell:
-    cmd: /usr/bin/growpart /dev/sda 3
-  args:
-    executable: /bin/bash
-  register: growpart_result
-  changed_when:
-    - growpart_result['rc'] < 1
-    - "'CHANGED' in growpart_result['stdout']"
-  failed_when:
-    - growpart_result['rc'] > 0
-    - "not 'NOCHANGE' in growpart_result['stdout']"
-
 - name: Extend the logical volume and resize the filesystem
-  when: "not 'NOCHANGE' in growpart_result['stdout']"
   ansible.builtin.shell:
     cmd: |-
       /usr/sbin/lvextend -r -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
