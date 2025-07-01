@@ -9,7 +9,6 @@ When you initialize this project via `make init` an `./inventory.yml` file will 
 
 | Name | Description |
 | ---  | ---         |
-| `ndp_templates` | VM templates to create and configure in Proxmox. |
 | `ndp_management` | VMs to create and configure from a VM template as management nodes capable of running code in this repository. |
 | `ndp_vms` | VMs to create and configure from a VM template as boilerplate nodes. |
 

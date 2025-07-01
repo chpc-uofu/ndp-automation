@@ -7,7 +7,6 @@ values here. See README.md for instructions.
 
 all:
   children:
-    ndp_templates:
     ndp_management:
     ndp_vms:
   vars:
@@ -39,18 +38,6 @@ all:
     tanium_client_download_endpoint: "xxxx"
     vm_cpu_cores: 2
     vm_memory: 4096
-
-# NOTE: Only one template is currently supported.
-ndp_templates:
-  hosts:
-    <name1>-template.chpc.utah.edu:
-      local_admin_password: "xxxx"
-      proxmox_node: "xxxx"
-      vm_description_ubuntu: "NDP template VM"
-      vm_id: xxxx
-      vm_network_adapters_mac_address: "xxxx"
-  vars:
-    vm_os_disk_size: 10G
 
 ndp_management:
   hosts:
