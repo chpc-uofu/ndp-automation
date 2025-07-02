@@ -9,8 +9,6 @@
     mode: '0640'
     validate: '/usr/sbin/visudo -cf %s'
   loop:
-    - filename: "{{ local_admin_user }}"
-      sudoer: "{{ local_admin_user }}"
     - filename: "{{ ssh_admin_group }}admins"
       sudoer: "%{{ ssh_admin_group }}"
 

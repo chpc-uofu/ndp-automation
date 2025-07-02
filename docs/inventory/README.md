@@ -43,8 +43,6 @@ All variables described below are required and many may be specified at the host
 | `dns_domains` | List of DNS domain(s) to apply to the `resolved` configuration. | `["dept.my.domain","my.domain"]` | inventory, host group, host |
 | `krb5_realm` | Kerberos realm to apply to the `sssd` configuration. | `ad.my.domain` | inventory, host group, host |
 | `krb5_servers` | List of Kerberos servers to apply to the `sssd` configuration. | `["kdc1.my.domain:88","kdc2.my.domain:88"]` | inventory, host group, host |
-| `local_admin_user` | Local administrative account to create in the template. | `mylocaladmin` | inventory |
-| `local_admin_password` | Local administrative account password. | `changeme` | inventory (required), host group (optional), host (optional) |
 | `ldap_search_base` | LDAP search base to apply to the `sssd` configuration. | `dc=dept,dc=my,dc=domain` | inventory, host group, host |
 | `ldap_uris` | List of LDAP URIs to apply to the `sssd` configuration. | `["ldap://ldap.my.domain","ldap://ldap2.my.domain"]` | inventory, host group, host |
 | `mail_relayhost` | Relayhost to apply to `postfix`. | `mail.my.domain` | inventory, host group, host |
