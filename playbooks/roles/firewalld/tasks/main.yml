@@ -23,13 +23,13 @@
     enabled: true
     masked: false
 
-- name: (Management-only) Apply firewall ports for Ubuntu autoinstall artifacts
-  when: inventory_hostname in groups['ndp_management']
-  ansible.posix.firewalld:
-    rich_rule: rule family="ipv4" port protocol="tcp" port=9000 source address="{{ proxmox_vm_cidr }}" accept
-    permanent: true
-    immediate: true
-    state: enabled
+# - name: (Management-only) Apply firewall ports for additional services
+#   when: inventory_hostname in groups['ndp_management']
+#   ansible.posix.firewalld:
+#     rich_rule: rule family="ipv4" port protocol="tcp" port=xxxx source address="{{ proxmox_vm_cidr }}" accept
+#     permanent: true
+#     immediate: true
+#     state: enabled
 
 - name: Apply firewall ports for the Prometheus Node Exporter
   ansible.posix.firewalld:
