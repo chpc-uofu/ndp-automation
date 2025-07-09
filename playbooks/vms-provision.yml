@@ -1,11 +1,29 @@
 ---
 
 - name: "Provision: All NDP VMs"
-  hosts: ndp_management,ndp_vms
+  # hosts: ndp_management,ndp_vms
+  hosts: ndp_vms
   become: true
   gather_facts: true
 
   tasks:
+    - name: Retrieve information about the NDP management host from Proxmox
+      delegate_to: localhost
+      become: false
+      community.proxmox.proxmox_vm_info:
+        api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
+        network: true
+        type: qemu
+        vmid: "{{ hostvars[groups['ndp_management'][0]]['vm_id'] }}"
+      register: ndp_mgmt_info
+
+    - name: Set additional NDP management host facts
+      ansible.builtin.set_fact:
+        ndp_mgmt_ipv4: "{{ ((ndp_mgmt_info['proxmox_vms'][0]['network'] | rejectattr('name', 'eq', 'lo'))[0]['ip-addresses'] | selectattr('ip-address-type', 'eq', 'ipv4'))[0]['ip-address'] }}"   # noqa yaml[line-length]
+
     - name: Configure physical partitions and logical volumes/groups
       ansible.builtin.include_role:
         name: provision
@@ -60,9 +78,9 @@
         name: provision
         tasks_from: fail2ban
 
-    - name: Configure Tanium Client
-      ansible.builtin.include_role:
-        name: tanium_client
+    # - name: Configure Tanium Client
+    #   ansible.builtin.include_role:
+    #     name: tanium_client
 
     - name: Ensure additional general packages are present
       ansible.builtin.apt:
@@ -121,14 +139,9 @@
   gather_facts: true
 
   tasks:
-    - name: Install and configure HashiCorp Packer
-      ansible.builtin.include_role:
-        name: packer_install
-
     - name: Ensure additional packages are present
       ansible.builtin.apt:
         name:
           - make
           - python3.12-venv
-          - sshpass
         state: present

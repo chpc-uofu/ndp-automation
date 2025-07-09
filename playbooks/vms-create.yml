@@ -31,7 +31,7 @@
         # args: '--rng0 "source=/dev/urandom,max_bytes=1024,period=1000"'  ## apparently requires root@pam
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
         cpu: "x86-64-v2-AES"
-        description: "{{ hostvars[item]['vm_description_ubuntu'] }}"
+        description: "{{ hostvars[item]['vm_description'] }}"
         memory: "{{ hostvars[item]['vm_memory'] }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         net:
@@ -105,3 +105,16 @@
         vmid: "{{ hostvars[item]['vm_id'] }}"
         state: started
       loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+
+    # # NOTE: This module is only available in the devel version of Ansible. Do This
+    # #       manually for now.
+    # - name: Add NDP management VM to HA group
+    #   community.proxmox.proxmox_cluster_ha_resources:
+    #     api_host: "{{ proxmox_api_host }}"
+    #     api_token_id: "{{ proxmox_api_token_id }}"
+    #     api_token_secret: "{{ proxmox_api_token_secret }}"
+    #     api_user: "{{ proxmox_api_user }}"
+    #     name: "vm:{{ hostvars[groups['ndp_templates'][0]]['vm_id'] }}"
+    #     group: "{{ proxmox_ha_group }}"
+    #     max_relocate: 1
+    #     max_restart: 1

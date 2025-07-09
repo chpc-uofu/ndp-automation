@@ -23,13 +23,36 @@
     enabled: true
     masked: false
 
-# - name: (Management-only) Apply firewall ports for additional services
-#   when: inventory_hostname in groups['ndp_management']
-#   ansible.posix.firewalld:
-#     rich_rule: rule family="ipv4" port protocol="tcp" port=xxxx source address="{{ proxmox_vm_cidr }}" accept
-#     permanent: true
-#     immediate: true
-#     state: enabled
+- name: (Hack) Always allow SSH from extra host
+  ansible.posix.firewalld:
+    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ extra_host }}" accept
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: (Workers-only) Allow SSH from NDP management host
+  when: inventory_hostname in groups['ndp_vms']
+  ansible.posix.firewalld:
+    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ ndp_mgmt_ipv4 }}" accept
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: (Management-only) Allow SSH from extra IP sets
+  when: inventory_hostname in groups['ndp_management']
+  ansible.posix.firewalld:
+    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ item }}" accept
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ firewall_trusted_ipsets }}"
+
+- name: Ensure SSH service is not enabled without restriction
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    immediate: true
+    state: absent
 
 - name: Apply firewall ports for the Prometheus Node Exporter
   ansible.posix.firewalld:
@@ -38,16 +61,10 @@
     immediate: true
     state: enabled
 
-- name: (Workers-only) Apply public firewall TCP ports for additional services
-  when: inventory_hostname in groups['ndp_vms']
+- name: Apply firewall ports for additional services
   ansible.posix.firewalld:
-    port: "{{ item }}/tcp"
+    port: "{{ item }}"
     permanent: true
     immediate: true
     state: enabled
-  loop:
-    - 80
-    - 443
-    - 5200
-    - 5201
-    - 8080
+  loop: "{{ firewall_ports }}"

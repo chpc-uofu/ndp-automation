@@ -41,6 +41,8 @@ All variables described below are required and many may be specified at the host
 | Name | Description | Example | Specification Levels |
 | ---  | ---         | ---     | ---                  |
 | `dns_domains` | List of DNS domain(s) to apply to the `resolved` configuration. | `["dept.my.domain","my.domain"]` | inventory, host group, host |
+| `firewall_ports` | List of firewall ports to apply (beyond SSH & monitoring). | `["80/tcp", "443/tcp"]` | inventory, host group, host |
+| `firewall_trusted_ipsets` | List of trusted IP sets allowed as SSH sources. | `["192.168.0.0/24", "10.0.0.0/24"]` | inventory, host group, host |
 | `krb5_realm` | Kerberos realm to apply to the `sssd` configuration. | `ad.my.domain` | inventory, host group, host |
 | `krb5_servers` | List of Kerberos servers to apply to the `sssd` configuration. | `["kdc1.my.domain:88","kdc2.my.domain:88"]` | inventory, host group, host |
 | `ldap_search_base` | LDAP search base to apply to the `sssd` configuration. | `dc=dept,dc=my,dc=domain` | inventory, host group, host |
@@ -56,7 +58,7 @@ All variables described below are required and many may be specified at the host
 | `tanium_client_custom_tags` | List of custom tags to apply to the Tanium Client configuration. | `["tag1","tag2"]` | inventory, host group, host | inventory, host group, host |
 | `tanium_client_download_endpoint` | Endpoint where the Tanium Client binary and data file may be found. | `https://mirror.my.domain/tanium` | inventory, host group, host |
 | `vm_cpu_cores` | Number of CPU cores to apply to the virtual host. | `4` | inventory, host group, host |
-| `vm_description_ubuntu` | Description to apply to the virtual host in Proxmox. | `My VM` |
+| `vm_description` | Description to apply to the virtual host in Proxmox. | `My VM` |
 | `vm_id` | ID of the virtual host. | `100` | inventory, host group, host |
 | `vm_memory` | Amount of memory (in megabytes) to apply to the virtual host | `8192` | inventory, host group, host |
 | `vm_network_adapters_mac_address` | MAC address for the virtual host's NIC. | `00:1A:2B:3C:4D:5E or 00-1A-2B-3C-4D-5E` | host |
