@@ -25,7 +25,7 @@
 
 - name: (Hack) Always allow SSH from extra host
   ansible.posix.firewalld:
-    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ extra_host }}" accept
+    rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ extra_host }}" accept
     permanent: true
     immediate: true
     state: enabled
@@ -33,7 +33,7 @@
 - name: (Workers-only) Allow SSH from NDP management host
   when: inventory_hostname in groups['ndp_vms']
   ansible.posix.firewalld:
-    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ ndp_mgmt_ipv4 }}" accept
+    rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ ndp_mgmt_ipv4 }}" accept
     permanent: true
     immediate: true
     state: enabled
@@ -41,7 +41,7 @@
 - name: (Management-only) Allow SSH from extra IP sets
   when: inventory_hostname in groups['ndp_management']
   ansible.posix.firewalld:
-    rich_rule: rule family="ipv4" port protocol="tcp" port=ssh source address="{{ item }}" accept
+    rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ item }}" accept
     permanent: true
     immediate: true
     state: enabled
@@ -52,7 +52,7 @@
     service: ssh
     permanent: true
     immediate: true
-    state: absent
+    state: disabled
 
 - name: Apply firewall ports for the Prometheus Node Exporter
   ansible.posix.firewalld:
