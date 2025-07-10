@@ -30,7 +30,7 @@
         agent: true
         # args: '--rng0 "source=/dev/urandom,max_bytes=1024,period=1000"'  ## apparently requires root@pam
         cores: "{{ hostvars[item]['vm_cpu_cores'] }}"
-        cpu: "x86-64-v2-AES"
+        cpu: "x86-64-v3"
         description: "{{ hostvars[item]['vm_description'] }}"
         memory: "{{ hostvars[item]['vm_memory'] }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
