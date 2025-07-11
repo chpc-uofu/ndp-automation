@@ -38,3 +38,5 @@ Ansible:
 * [community.general.proxmox_vm_info module](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_vm_info_module.html)
 * [community.general.proxmox_disk module – Management of a disk of a Qemu(KVM) VM in a Proxmox VE cluster](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_disk_module.html)
 * [community.general.lvol module – Configure LVM logical volumes](https://docs.ansible.com/ansible/latest/collections/community/general/lvol_module.html)
+* [Autoinstall configuration reference manual](https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html)
+* [cloud-init: All cloud config examples](https://docs.cloud-init.io/en/latest/reference/examples.html)

@@ -6,14 +6,11 @@ galaxy*
 hosts.yml
 inventory.yml
 
-# Packer
-user-data
-secrets.pkrvars.hcl
-
 # Python
 venv/
 
 # Other
 *.lock
 .env
+id_ed255*
 tmp/
