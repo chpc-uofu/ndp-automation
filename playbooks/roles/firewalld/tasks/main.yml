@@ -23,10 +23,10 @@
     enabled: true
     masked: false
 
-- name: Always allow SSH from extra host
+- name: Always allow SSH from extra mgmt host
   when: extra_host is defined
   ansible.posix.firewalld:
-    rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ extra_host }}" accept
+    rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ extra_mgmt_host }}" accept
     permanent: true
     immediate: true
     state: enabled
