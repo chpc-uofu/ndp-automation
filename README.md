@@ -28,7 +28,7 @@ Ansible controller:
 
 ## Bugs
 
-* [githug: Support VirtIO RNG to proxmox kvm module](https://github.com/ansible-collections/community.proxmox/issues/87)
+* [github: Support VirtIO RNG to proxmox kvm module](https://github.com/ansible-collections/community.proxmox/issues/87)
 
 ## Resources
 
