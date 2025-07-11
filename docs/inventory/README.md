@@ -42,7 +42,7 @@ All variables described below are required and many may be specified at the host
 | ---  | ---         | ---     | ---                  |
 | `dns_domains` | List of DNS domain(s) to apply to the `resolved` configuration. | `["dept.my.domain","my.domain"]` | inventory, host group, host |
 | `firewall_ports` | List of firewall ports to apply (beyond SSH & monitoring). | `["80/tcp", "443/tcp"]` | inventory, host group, host |
-| `firewall_trusted_ipsets` | List of trusted IP sets allowed as SSH sources. | `["192.168.0.0/24", "10.0.0.0/24"]` | inventory, host group, host |
+| `firewall_trusted_ipsets` | List of trusted IP sets allowed as SSH sources for the `ndp_management` hosts (`ndp_vms` will only trust `ndp_management` hosts). | `["192.168.0.0/24", "10.0.0.0/24"]` | inventory, host group, host |
 | `krb5_realm` | Kerberos realm to apply to the `sssd` configuration. | `ad.my.domain` | inventory, host group, host |
 | `krb5_servers` | List of Kerberos servers to apply to the `sssd` configuration. | `["kdc1.my.domain:88","kdc2.my.domain:88"]` | inventory, host group, host |
 | `ldap_search_base` | LDAP search base to apply to the `sssd` configuration. | `dc=dept,dc=my,dc=domain` | inventory, host group, host |
