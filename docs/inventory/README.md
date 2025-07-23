@@ -63,4 +63,5 @@ All variables described below are required and many may be specified at the host
 | `vm_id` | ID of the virtual host. | `100` | inventory, host group, host |
 | `vm_memory` | Amount of memory (in megabytes) to apply to the virtual host | `8192` | inventory, host group, host |
 | `vm_network_adapters_mac_address` | MAC address for the virtual host's NIC. | `00:1A:2B:3C:4D:5E or 00-1A-2B-3C-4D-5E` | host |
+| `vm_network_vlan_tag` | VLAN tag for the virtual host's NIC. | `1234` | inventory, host group, host |
 | `vm_os_disk_size` | Disk size for the virtual host. | `10G` | inventory, host group, host |

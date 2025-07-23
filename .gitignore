@@ -5,6 +5,7 @@ ansible/
 galaxy*
 hosts.yml
 inventory.yml
+inventory.yml*
 
 # Python
 venv/
