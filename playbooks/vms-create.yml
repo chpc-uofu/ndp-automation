@@ -8,6 +8,7 @@
     - name: Create new VMs
       vars:
         new_vm_mac_address: "{{ hostvars[item]['vm_network_adapters_mac_address'] }}"
+        new_vm_vlan_tag: "{{ hostvars[item]['vm_network_vlan_tag'] }}"
       community.proxmox.proxmox_kvm:
         # Connection config
         api_host: "{{ proxmox_api_host }}"
@@ -35,7 +36,7 @@
         memory: "{{ hostvars[item]['vm_memory'] }}"
         name: "{{ hostvars[item]['inventory_hostname'] }}"
         net:
-          net0: 'virtio={{ new_vm_mac_address }},bridge=vmbr1,tag=1702'
+          net0: 'virtio={{ new_vm_mac_address }},bridge=vmbr1,tag={{ new_vm_vlan_tag }}'
         ostype: l26
         scsi:
           scsi0: "{{ hostvars[item]['proxmox_storage_pool'] }}:{{ hostvars[item]['vm_os_disk_size'] | regex_search('[0-9]+') }}"
