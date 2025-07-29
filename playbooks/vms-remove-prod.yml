@@ -18,3 +18,5 @@
         vmid: "{{ hostvars[item]['vm_id'] }}"
         state: absent
       loop: "{{ ndp['prod'] }}"
+
+# TODO: Delete the attached disks.
