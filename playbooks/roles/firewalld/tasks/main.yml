@@ -24,15 +24,15 @@
     masked: false
 
 - name: Always allow SSH from extra mgmt host
-  when: extra_host is defined
+  when: extra_mgmt_host is defined
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ extra_mgmt_host }}" accept
     permanent: true
     immediate: true
     state: enabled
 
-- name: (Workers-only) Allow SSH from NDP management host
-  when: inventory_hostname in groups['ndp_vms']
+- name: (Workers-only) Ensure SSH is always allowed from the NDP management host
+  when: not inventory_hostname in groups['ndp_mgmt']
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ ndp_mgmt_ipv4 }}" accept
     permanent: true
