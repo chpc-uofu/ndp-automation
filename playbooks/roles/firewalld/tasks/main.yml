@@ -24,29 +24,28 @@
     masked: false
 
 - name: Always allow SSH from extra mgmt host
-  when: extra_host is defined
+  when: extra_mgmt_host is defined
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ extra_mgmt_host }}" accept
     permanent: true
     immediate: true
     state: enabled
 
-- name: (Workers-only) Allow SSH from NDP management host
-  when: inventory_hostname in groups['ndp_vms']
+- name: (Workers-only) Always allow SSH from the NDP management host
+  when: not inventory_hostname in groups['ndp_mgmt']
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ ndp_mgmt_ipv4 }}" accept
     permanent: true
     immediate: true
     state: enabled
 
-- name: (Management-only) Allow SSH from extra IP sets
-  when: inventory_hostname in groups['ndp_mgmt']
+- name: Allow SSH from extra IP CIDRs
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ item }}" accept
     permanent: true
     immediate: true
     state: enabled
-  loop: "{{ firewall_trusted_ipsets }}"
+  loop: "{{ firewall_ssh_allow }}"
 
 - name: Ensure SSH service is not enabled without restriction
   ansible.posix.firewalld:
@@ -68,4 +67,4 @@
     permanent: true
     immediate: true
     state: enabled
-  loop: "{{ firewall_ports }}"
+  loop: "{{ firewall_ports_allow }}"

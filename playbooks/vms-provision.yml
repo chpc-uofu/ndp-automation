@@ -2,7 +2,6 @@
 
 - name: "Provision: All NDP VMs"
   hosts: all
-  # hosts: ndp_vms
   become: true
   gather_facts: true
 
