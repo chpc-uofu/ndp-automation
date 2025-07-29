@@ -133,7 +133,7 @@
         name: prometheus.prometheus.node_exporter
 
 - name: "Provision: Management NDP VMs"
-  hosts: ndp_management
+  hosts: ndp_mgmt
   become: true
   gather_facts: true
 

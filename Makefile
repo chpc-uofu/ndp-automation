@@ -69,6 +69,11 @@ ansible-vms-create: # Creates and starts the VMs.
 	@echo ">>> Running the VMs creation"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml
 
+.PHONY: ansible-vms-firewall
+ansible-vms-firewall: # Provisions the VM firewalls.
+	@echo ">>> Running the VM firewalls provision"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision-firewall.yml
+
 .PHONY: ansible-vms-provision
 ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
