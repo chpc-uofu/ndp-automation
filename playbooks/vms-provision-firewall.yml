@@ -1,0 +1,28 @@
+---
+
+- name: "Provision: All NDP VM firewalls"
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Retrieve information about the NDP management host from Proxmox
+      delegate_to: localhost
+      become: false
+      community.proxmox.proxmox_vm_info:
+        api_host: "{{ proxmox_api_host }}"
+        api_token_id: "{{ proxmox_api_token_id }}"
+        api_token_secret: "{{ proxmox_api_token_secret }}"
+        api_user: "{{ proxmox_api_user }}"
+        network: true
+        type: qemu
+        vmid: "{{ hostvars[groups['ndp_mgmt'][0]]['vm_id'] }}"
+      register: ndp_mgmt_info
+
+    - name: Set additional NDP management host facts
+      ansible.builtin.set_fact:
+        ndp_mgmt_ipv4: "{{ ((ndp_mgmt_info['proxmox_vms'][0]['network'] | rejectattr('name', 'eq', 'lo'))[0]['ip-addresses'] | selectattr('ip-address-type', 'eq', 'ipv4'))[0]['ip-address'] }}"   # noqa yaml[line-length]
+
+    - name: Configure firewall
+      ansible.builtin.include_role:
+        name: firewalld
