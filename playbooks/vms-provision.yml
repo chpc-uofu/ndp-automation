@@ -1,7 +1,7 @@
 ---
 
 - name: "Provision: All NDP VMs"
-  hosts: ndp_management,ndp_vms
+  hosts: all
   # hosts: ndp_vms
   become: true
   gather_facts: true
@@ -17,7 +17,7 @@
         api_user: "{{ proxmox_api_user }}"
         network: true
         type: qemu
-        vmid: "{{ hostvars[groups['ndp_management'][0]]['vm_id'] }}"
+        vmid: "{{ hostvars[groups['ndp_mgmt'][0]]['vm_id'] }}"
       register: ndp_mgmt_info
 
     - name: Set additional NDP management host facts

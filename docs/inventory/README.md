@@ -9,8 +9,10 @@ When you initialize this project via `make init` an `./inventory.yml` file will 
 
 | Name | Description |
 | ---  | ---         |
-| `ndp_management` | VMs to create and configure from a VM template as management nodes capable of running code in this repository. |
-| `ndp_vms` | VMs to create and configure from a VM template as boilerplate nodes. |
+| `ndp_dev` | VMs to create and configure boilerplate development nodes. |
+| `ndp_mgmt` | VMs to create and configure as management nodes capable of running code in this repository. |
+| `ndp_prod` | VMs to create and configure as boilerplate production nodes. |
+| `ndp_test` | VMs to create and configure as boilerplate test nodes. |
 
 ## Variables
 
@@ -22,7 +24,6 @@ All variables described below are required and many may be specified at the host
 | ---  | ---         | ---                  |
 | `ansible_user` | The user Ansible ‘logs in’ as. | inventory |
 | `ansible_ssh_private_key_file` | The private key file Ansible uses during login. | inventory |
-| `ansible_sudo_pass` | The password Ansible uses with `sudo`. | inventory |
 
 ### Proxmox
 

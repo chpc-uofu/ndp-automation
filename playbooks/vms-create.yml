@@ -47,7 +47,7 @@
       register: created_vms
       # until: created_vms is not failed
       # retries: 10
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+      loop: "{{ groups['all'] }}"
 
     - name: Retrieve information about specific VM by ID
       vars:
@@ -59,7 +59,7 @@
         api_user: "{{ proxmox_api_user }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+      loop: "{{ groups['all'] }}"
       register: current_vms_info
 
     - name: Set additional facts
@@ -80,7 +80,7 @@
               rng0: "source=/dev/urandom,max_bytes=1024,period=1000"
             return_content: false
             validate_certs: false
-          loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+          loop: "{{ groups['all'] }}"
           register: rng_update
           changed_when: true
           failed_when: rng_update['status'] != 200
@@ -105,7 +105,7 @@
         api_user: "{{ proxmox_api_user }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         state: started
-      loop: "{{ groups['ndp_management'] + groups['ndp_vms'] }}"
+      loop: "{{ groups['all'] }}"
 
     # # NOTE: This module is only available in the devel version of Ansible. Do This
     # #       manually for now.

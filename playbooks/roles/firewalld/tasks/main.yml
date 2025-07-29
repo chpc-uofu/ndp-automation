@@ -40,7 +40,7 @@
     state: enabled
 
 - name: (Management-only) Allow SSH from extra IP sets
-  when: inventory_hostname in groups['ndp_management']
+  when: inventory_hostname in groups['ndp_mgmt']
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ item }}" accept
     permanent: true
