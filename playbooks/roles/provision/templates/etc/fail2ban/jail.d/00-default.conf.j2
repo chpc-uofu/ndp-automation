@@ -3,7 +3,7 @@
 
 [DEFAULT]
 bantime = 2h
-ignoreip = {{ proxmox_vm_cidr }}
+ignoreip = {{ proxmox_vm_cidrs | join(' ') }}
 ignoreself = true
 findtime = 5m
 maxretry = 10
