@@ -18,6 +18,12 @@ VENV = ./venv
 	@echo "NOTE: In order to run additional make commands you will need to execute 'make init' beforehand."
 	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 
+.PHONY: .confirm_vms_remove
+.confirm_vms_remove:
+	@echo "DANGER: Removing these VMs is a destructive act and may result in a permanent loss of work."
+	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@echo -n "Please verify your choice? [y/N] " && read ans && [ $${ans:-N} = y ]
+
 # ---------------------------------------------------------
 # General targets
 # ---------------------------------------------------------
@@ -69,8 +75,23 @@ ansible-vms-create: # Creates and starts the VMs.
 	@echo ">>> Running the VMs creation"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml
 
+.PHONY: ansible-vms-remove-dev
+ansible-vms-remove-dev: # Removes the development VMs.
+	@echo ">>> Running the development VMs removal"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-remove-dev.yml
+
+.PHONY: ansible-vms-remove-prod
+ansible-vms-remove-prod: | .confirm_vms_remove # Removes the production VMs.
+	@echo ">>> Running the production VMs removal"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-remove-prod.yml
+
+.PHONY: ansible-vms-remove-test
+ansible-vms-remove-test: | .confirm_vms_remove # Removes the test VMs.
+	@echo ">>> Running the test VMs removal"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-remove-test.yml
+
 .PHONY: ansible-vms-provision
-ansible-vms-provision: # Provisions the VMs.
+ansible-vms-provision: | .confirm_vms_remove # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml
 
