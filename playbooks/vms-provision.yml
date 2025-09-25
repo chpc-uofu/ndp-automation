@@ -18,74 +18,144 @@
         type: qemu
         vmid: "{{ hostvars[groups['ndp_mgmt'][0]]['vm_id'] }}"
       register: ndp_mgmt_info
+      tags:
+        - bootstrap
+        - firewall
 
     - name: Set additional NDP management host facts
       ansible.builtin.set_fact:
         ndp_mgmt_ipv4: "{{ ((ndp_mgmt_info['proxmox_vms'][0]['network'] | rejectattr('name', 'eq', 'lo'))[0]['ip-addresses'] | selectattr('ip-address-type', 'eq', 'ipv4'))[0]['ip-address'] }}"   # noqa yaml[line-length]
+      tags:
+        - bootstrap
+        - firewall
 
     - name: Configure physical partitions and logical volumes/groups
       ansible.builtin.include_role:
         name: provision
         tasks_from: resize_lvm
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Set the static hostname
       ansible.builtin.command: >-
         /usr/bin/hostnamectl --static set-hostname {{ inventory_hostname }}
       changed_when: false
+      tags:
+        - bootstrap
 
     - name: Configure DNS
       ansible.builtin.include_role:
         name: provision
         tasks_from: resolved
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure time
       ansible.builtin.include_role:
         name: provision
         tasks_from: time
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure basic system tuning
       ansible.builtin.include_role:
         name: provision
         tasks_from: basic_system_tuning
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure mail
       ansible.builtin.include_role:
         name: provision
         tasks_from: mail
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure MOTD
       ansible.builtin.include_role:
         name: provision
         tasks_from: motd
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure syslog
       ansible.builtin.include_role:
         name: provision
         tasks_from: syslog
+        apply:
+          tags:
+            - bootstrap
+            - logging
+      tags:
+        - bootstrap
+        - logging
 
     - name: Configure firewall
       ansible.builtin.include_role:
         name: firewalld
+        apply:
+          tags:
+            - firewall
+            - bootstrap
+      tags:
+        - bootstrap
+        - firewall
 
     - name: Update and upgrade existing system packages
       ansible.builtin.apt:
         upgrade: true
         update_cache: true
+      tags:
+        - always
 
     - name: Configure fail2ban
       ansible.builtin.include_role:
         name: provision
         tasks_from: fail2ban
+        apply:
+          tags:
+            - bootstrap
+            - fail2ban
+      tags:
+        - bootstrap
+        - fail2ban
 
     - name: Configure Tanium Client
       ansible.builtin.include_role:
         name: tanium_client
+        apply:
+          tags:
+            - bootstrap
+            - tanium
+      tags:
+        - bootstrap
+        - tanium
 
     - name: Ensure additional general packages are present
       ansible.builtin.apt:
         name:
           - tlslookup
         state: present
+      tags:
+        - bootstrap
 
     - name: Install additional snaps
       when: snaps is defined
@@ -98,31 +168,65 @@
       loop_control:
         label: "{{ snap['name'] }}"
         loop_var: snap
+      tags:
+        - bootstrap
+        - snaps
 
     - name: Configure Docker
       ansible.builtin.include_role:
         name: provision
         tasks_from: docker
+        apply:
+          tags:
+            - bootstrap
+            - docker
+      tags:
+        - bootstrap
+        - docker
 
     - name: Configure campus authentication
       ansible.builtin.include_role:
         name: provision
         tasks_from: campus_auth
+        apply:
+          tags:
+            - auth
+            - bootstrap
+      tags:
+        - auth
+        - bootstrap
 
     - name: Configure sudoers
       ansible.builtin.include_role:
         name: provision
         tasks_from: sudoers
+        apply:
+          tags:
+            - auth
+            - bootstrap
+      tags:
+        - auth
+        - bootstrap
 
     - name: Configure root basic environment
       ansible.builtin.include_role:
         name: provision
         tasks_from: root_basic_environment
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure a self-signed certificate
       ansible.builtin.include_role:
         name: provision
         tasks_from: cert_selfsigned
+        apply:
+          tags:
+            - bootstrap
+      tags:
+        - bootstrap
 
     - name: Configure the Prometheus Node Exporter
       vars:
@@ -131,6 +235,13 @@
               unit-include: '(ssh|sssd).service'
       ansible.builtin.include_role:
         name: prometheus.prometheus.node_exporter
+        apply:
+          tags:
+            - bootstrap
+            - monitoring
+      tags:
+        - bootstrap
+        - monitoring
 
 - name: "Provision: Management NDP VMs"
   hosts: ndp_mgmt
@@ -144,3 +255,5 @@
           - make
           - python3.12-venv
         state: present
+      tags:
+        - bootstrap
