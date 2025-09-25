@@ -19,15 +19,15 @@
         vmid: "{{ hostvars[groups['ndp_mgmt'][0]]['vm_id'] }}"
       register: ndp_mgmt_info
       tags:
-        - firewall
         - bootstrap
+        - firewall
 
     - name: Set additional NDP management host facts
       ansible.builtin.set_fact:
         ndp_mgmt_ipv4: "{{ ((ndp_mgmt_info['proxmox_vms'][0]['network'] | rejectattr('name', 'eq', 'lo'))[0]['ip-addresses'] | selectattr('ip-address-type', 'eq', 'ipv4'))[0]['ip-address'] }}"   # noqa yaml[line-length]
       tags:
-        - firewall
         - bootstrap
+        - firewall
 
     - name: Configure physical partitions and logical volumes/groups
       ansible.builtin.include_role:
@@ -116,8 +116,8 @@
             - firewall
             - bootstrap
       tags:
-        - firewall
         - bootstrap
+        - firewall
 
     - name: Update and upgrade existing system packages
       ansible.builtin.apt:
@@ -132,11 +132,11 @@
         tasks_from: fail2ban
         apply:
           tags:
-            - fail2ban
             - bootstrap
+            - fail2ban
       tags:
-        - fail2ban
         - bootstrap
+        - fail2ban
 
     - name: Configure Tanium Client
       ansible.builtin.include_role:
@@ -178,11 +178,11 @@
         tasks_from: docker
         apply:
           tags:
-            - docker
             - bootstrap
+            - docker
       tags:
-        - docker
         - bootstrap
+        - docker
 
     - name: Configure campus authentication
       ansible.builtin.include_role:
