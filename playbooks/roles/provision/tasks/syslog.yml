@@ -4,14 +4,14 @@
   ansible.builtin.lineinfile:
     path: /etc/logrotate.conf
     regexp: "^# keep (\\d+) weeks worth of backlogs$"
-    line: "# keep 312 weeks worth of backlogs"
+    line: "# keep 1 weeks worth of backlogs"
     state: present
 
-- name: "Change logrotate to keep previous logs for weeks: 312"
+- name: "Change logrotate to keep previous logs for weeks: 1"
   ansible.builtin.lineinfile:
     path: /etc/logrotate.conf
     regexp: "^rotate.*$"
-    line: "rotate 312"
+    line: "rotate 1"
 
 - name: Ensure compression is enabled for logrotate
   ansible.builtin.lineinfile:
