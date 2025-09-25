@@ -124,7 +124,7 @@
         upgrade: true
         update_cache: true
       tags:
-        - always
+        - bootstrap
 
     - name: Configure fail2ban
       ansible.builtin.include_role:
