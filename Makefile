@@ -72,12 +72,17 @@ ansible-vms-create: # Creates and starts the VMs.
 .PHONY: ansible-vms-firewall
 ansible-vms-firewall: # Provisions the VM firewalls.
 	@echo ">>> Running the VM firewalls provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision-firewall.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall
+
+.PHONY: ansible-vms-logging
+ansible-vms-logging: # Provisions the VM logging configurations.
+	@echo ">>> Running the VM logging provision"
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging
 
 .PHONY: ansible-vms-provision
 ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap
 
 # ---------------------------------------------------------
 # venv targets
