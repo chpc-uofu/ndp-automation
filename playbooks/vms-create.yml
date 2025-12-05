@@ -10,7 +10,7 @@
     ndp_ansible_limit: "" # same syntax as --limit
 
   tasks:
-    - name: Initialize inventory limits when non are provided
+    - name: Initialize inventory limits when none are provided
       when: ndp_ansible_limit | length < 1
       ansible.builtin.set_fact:
         limit_raw: "{{ groups['all'] }}"
