@@ -5,7 +5,7 @@ MAKEFLAGS += -s
 
 # General variables:
 ACTIVATE = $(VENV)/bin/activate
-NDP_ANSIBLE_LIMIT ?=                # same syntax as --limit
+NDP_ANSIBLE_LIMIT ?=                            # same syntax as --limit
 NDP_ENVS := dev test prod
 PIP = $(VENV)/bin/pip
 PYTHON3 = /usr/bin/python3.12
@@ -13,6 +13,7 @@ VENV = ./venv
 
 # Exported variables:
 export ANSIBLE_INVENTORY ?= ./inventories/dev
+export ANSIBLE_RUN_TAGS := "bootstrap"          # "auth", "bootstrap", "docker", "fail2ban", "firewall", "logging", "snaps", "tanium"
 
 # ---------------------------------------------------------
 # Utility targets
@@ -80,18 +81,8 @@ ansible-vms-create: # Creates and starts the VMs.
 	@echo ">>> Running the VMs creation"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml --extra-vars "ndp_ansible_limit='$(NDP_ANSIBLE_LIMIT)'"	
 
-.PHONY: ansible-vms-firewall
-ansible-vms-firewall: # Provisions the VM firewalls.
-	@echo ">>> Running the VM firewalls provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall --limit '$(NDP_ANSIBLE_LIMIT)'
-
-.PHONY: ansible-vms-logging
-ansible-vms-logging: # Provisions the VM logging configurations.
-	@echo ">>> Running the VM logging provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging --limit '$(NDP_ANSIBLE_LIMIT)'
-
 .PHONY: ansible-vms-provision
-ansible-vms-provision: # Provisions the VMs.
+ansible-vms-provision: # Provisions the VMs. Use Ansible tags to filter tasks.
 	@echo ">>> Running the VMs provision"
 	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap --limit '$(NDP_ANSIBLE_LIMIT)'
 
