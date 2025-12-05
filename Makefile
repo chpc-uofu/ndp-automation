@@ -36,7 +36,7 @@ help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -/]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
  
 .PHONY: init
-init: | .envcheck venv-create ansible-requirements ansible-inventory # Initializes the automation environment.
+init: | .envcheck venv-create ansible-requirements-install ansible-inventory # Initializes the automation environment.
 
 .PHONY: create
 create: | .envcheck ansible-vms-create # Creates and starts VMs.
@@ -70,8 +70,8 @@ ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible invento
 	@echo ">>> Running Ansible ping test"
 	. $(ACTIVATE); ansible all -m ping
 
-.PHONY: ansible-requirements
-ansible-requirements: # Installs required Ansible Galaxy collections, etc.
+.PHONY: ansible-requirements-install
+ansible-requirements-install: # Installs required Ansible Galaxy collections, etc.
 	@echo ">>> Running Ansible Galaxy to install required collections, etc."
 	. $(ACTIVATE); ansible-galaxy install -vvv -r $(CURDIR)/requirements.yml
 
