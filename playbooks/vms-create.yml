@@ -3,6 +3,7 @@
   hosts: 127.0.0.1
   connection: local
   gather_facts: false
+  tags: always
   vars_files:
     - "../inventories/group_vars/all.yml"
   vars:
