@@ -69,7 +69,7 @@ ansible-lint: # Runs the Ansible linter.
 .PHONY: ansible-pingtest
 ansible-pingtest: | .envcheck # Runs a ping test on each of the hosts in the Ansible inventory.
 	@echo ">>> Running Ansible ping test"
-	. $(ACTIVATE); ansible all -m ping
+	. $(ACTIVATE); ansible all -m ping --limit '$(NDP_ANSIBLE_LIMIT)'
 
 .PHONY: ansible-requirements-install
 ansible-requirements-install: # Installs required Ansible Galaxy collections, etc.

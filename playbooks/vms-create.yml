@@ -34,10 +34,10 @@
         limit_resolved_hosts: "{{ limit_resolved_hosts + [item] }}"
       loop: "{{ limit_raw }}"
 
-    - name: Fail if limit items are not valid
+    - name: (Debug) If limit item is not valid
       when: item not in groups and item not in hostvars
-      ansible.builtin.fail:
-        msg: "Limit item '{{ item }}' is not a group or an inventory host."
+      ansible.builtin.debug:
+        msg: "Could not match supplied host pattern, ignoring: {{ item }}"
       loop: "{{ limit_raw }}"
 
     - name: Gather resolved limited hosts
