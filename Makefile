@@ -5,6 +5,7 @@ MAKEFLAGS += -s
 
 # General variables:
 ACTIVATE = $(VENV)/bin/activate
+NDP_LIMIT ?= ""
 PIP = $(VENV)/bin/pip
 PYTHON3 = /usr/bin/python3.12
 VENV = ./venv
@@ -18,6 +19,11 @@ VENV = ./venv
 	@echo "NOTE: In order to run additional make commands you will need to execute 'make init' beforehand."
 	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 
+.PHONY: .envcheck
+.envcheck:
+	@echo ">>> Displaying associated environmental variables"
+	(env | grep ^NDP_*) || true
+
 # ---------------------------------------------------------
 # General targets
 # ---------------------------------------------------------
@@ -29,13 +35,13 @@ help: # Show help for each of the Makefile recipes.
 	@grep -E '^[a-zA-Z0-9 -/]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
  
 .PHONY: init
-init: | venv-create ansible-requirements ansible-inventory # Initializes the automation environment.
+init: | .envcheck venv-create ansible-requirements ansible-inventory # Initializes the automation environment.
 
 .PHONY: create
-create: | ansible-vms-create # Creates and starts VMs.
+create: | .envcheck ansible-vms-create # Creates and starts VMs.
 
 .PHONY: provision
-provision: | ansible-vms-provision # Provisions the VMs.
+provision: | .envcheck ansible-vms-provision # Provisions the VMs.
 
 .PHONY: clean
 clean: | .confirm_clean venv-remove # Cleans up the automation environment.
@@ -72,17 +78,17 @@ ansible-vms-create: # Creates and starts the VMs.
 .PHONY: ansible-vms-firewall
 ansible-vms-firewall: # Provisions the VM firewalls.
 	@echo ">>> Running the VM firewalls provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall --limit $(NDP_LIMIT)
 
 .PHONY: ansible-vms-logging
 ansible-vms-logging: # Provisions the VM logging configurations.
 	@echo ">>> Running the VM logging provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging --limit $(NDP_LIMIT)
 
 .PHONY: ansible-vms-provision
 ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap --limit $(NDP_LIMIT)
 
 # ---------------------------------------------------------
 # venv targets
