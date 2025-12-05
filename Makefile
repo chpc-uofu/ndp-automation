@@ -50,10 +50,16 @@ clean: | .confirm_clean venv-remove # Cleans up the automation environment.
 # Ansible targets
 # ---------------------------------------------------------
 
-.PHONY: ansible-inventory
-ansible-inventory: # Generates the Ansible inventory file.
-	@echo ">>> Running Ansible inventory generation"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/ansible-inventory.yml
+.PHONY: ansible-inventory-graph
+ansible-inventory-graph: # Graphing all hosts in all Ansible inventories.
+	@echo ">>> Graphing all hosts in all Ansible inventories"
+	. $(ACTIVATE); ansible-inventory --graph
+	@echo ">>> Graphing all hosts in the 'dev' Ansible inventory"
+	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/dev
+	@echo ">>> Graphing all hosts in the 'test' Ansible inventory"
+	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/test
+	@echo ">>> Graphing all hosts in the 'prod' Ansible inventory"
+	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/prod		
 
 .PHONY: ansible-lint
 ansible-lint: # Runs the Ansible linter.
