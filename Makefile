@@ -5,11 +5,14 @@ MAKEFLAGS += -s
 
 # General variables:
 ACTIVATE = $(VENV)/bin/activate
+NDP_ANSIBLE_LIMIT ?=                # same syntax as --limit
 NDP_ENVS := dev test prod
-NDP_LIMIT ?= ""
 PIP = $(VENV)/bin/pip
 PYTHON3 = /usr/bin/python3.12
 VENV = ./venv
+
+# Exported variables:
+export ANSIBLE_INVENTORY ?= ./inventories/dev
 
 # ---------------------------------------------------------
 # Utility targets
@@ -23,6 +26,7 @@ VENV = ./venv
 .PHONY: .envcheck
 .envcheck:
 	@echo ">>> Displaying associated environmental variables"
+	(env | grep ^ANSIBLE_*) || true
 	(env | grep ^NDP_*) || true
 
 # ---------------------------------------------------------
@@ -52,13 +56,9 @@ clean: | .confirm_clean venv-remove # Cleans up the automation environment.
 # ---------------------------------------------------------
 
 .PHONY: ansible-inventory-graph
-ansible-inventory-graph: # Graphing all hosts in all Ansible inventories.
-	@echo ">>> Graphing all hosts in all Ansible inventories"
+ansible-inventory-graph: | .envcheck # Graphing the Ansible inventory.
+	@echo ">>> Graphing the Ansible inventories"
 	. $(ACTIVATE); ansible-inventory --graph
-	@for env in $(NDP_ENVS); do \
-		echo ">>> Graphing all hosts in the '$$env' Ansible inventory"; \
-		. $(ACTIVATE); ansible-inventory --graph -i ./inventories/$$env; \
-	done
 
 .PHONY: ansible-lint
 ansible-lint: # Runs the Ansible linter.
@@ -66,7 +66,7 @@ ansible-lint: # Runs the Ansible linter.
 	. $(ACTIVATE); ansible-lint --force-color --profile=production $(CURDIR)
 
 .PHONY: ansible-pingtest
-ansible-pingtest: # Runs a ping test on each of the hosts in the Ansible inventory.
+ansible-pingtest: | .envcheck # Runs a ping test on each of the hosts in the Ansible inventory.
 	@echo ">>> Running Ansible ping test"
 	. $(ACTIVATE); ansible all -m ping
 
@@ -78,22 +78,22 @@ ansible-requirements-install: # Installs required Ansible Galaxy collections, et
 .PHONY: ansible-vms-create
 ansible-vms-create: # Creates and starts the VMs.
 	@echo ">>> Running the VMs creation"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-create.yml --extra-vars "ndp_ansible_limit='$(NDP_ANSIBLE_LIMIT)'"	
 
 .PHONY: ansible-vms-firewall
 ansible-vms-firewall: # Provisions the VM firewalls.
 	@echo ">>> Running the VM firewalls provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall --limit $(NDP_LIMIT)
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags firewall --limit '$(NDP_ANSIBLE_LIMIT)'
 
 .PHONY: ansible-vms-logging
 ansible-vms-logging: # Provisions the VM logging configurations.
 	@echo ">>> Running the VM logging provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging --limit $(NDP_LIMIT)
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags logging --limit '$(NDP_ANSIBLE_LIMIT)'
 
 .PHONY: ansible-vms-provision
 ansible-vms-provision: # Provisions the VMs.
 	@echo ">>> Running the VMs provision"
-	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap --limit $(NDP_LIMIT)
+	. $(ACTIVATE); ansible-playbook $(CURDIR)/playbooks/vms-provision.yml --tags bootstrap --limit '$(NDP_ANSIBLE_LIMIT)'
 
 # ---------------------------------------------------------
 # venv targets

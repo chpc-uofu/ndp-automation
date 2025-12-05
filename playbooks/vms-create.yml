@@ -3,11 +3,45 @@
   hosts: 127.0.0.1
   connection: local
   gather_facts: false
+  vars_files:
+    - "../inventories/group_vars/all.yml"
+  vars:
+    ndp_ansible_limit: "" # same syntax as --limit
 
   tasks:
-    - name: Gather limited inventory hosts
+    - name: Initialize inventory limits when non are provided
+      when: ndp_ansible_limit | length < 1
       ansible.builtin.set_fact:
-        _ndp_limit: "{{ lookup('env', 'NDP_LIMIT') | default(groups['all'], true) }}"
+        limit_raw: "{{ groups['all'] }}"
+        limit_resolved_hosts: []
+
+    - name: Initialize inventory limits
+      when: ndp_ansible_limit | length > 0
+      ansible.builtin.set_fact:
+        limit_raw: "{{ ndp_ansible_limit.split(',') }}"
+        limit_resolved_hosts: []
+
+    - name: Add group members when limit item is an inventory group
+      when: item in groups
+      ansible.builtin.set_fact:
+        limit_resolved_hosts: "{{ limit_resolved_hosts + groups[item] }}"
+      loop: "{{ limit_raw }}"
+
+    - name: Add host when limit item is an inventory host
+      when: item not in groups and item in hostvars
+      ansible.builtin.set_fact:
+        limit_resolved_hosts: "{{ limit_resolved_hosts + [item] }}"
+      loop: "{{ limit_raw }}"
+
+    - name: Fail if limit items are not valid
+      when: item not in groups and item not in hostvars
+      ansible.builtin.fail:
+        msg: "Limit item '{{ item }}' is not a group or an inventory host."
+      loop: "{{ limit_raw }}"
+
+    - name: Gather resolved limited hosts
+      ansible.builtin.set_fact:
+        limit_resolved_hosts: "{{ limit_resolved_hosts | unique }}"
 
     - name: Create new VMs
       vars:
@@ -51,7 +85,7 @@
       register: created_vms
       # until: created_vms is not failed
       # retries: 10
-      loop: "{{ _ndp_limit }}"
+      loop: "{{ limit_resolved_hosts }}"
 
     - name: Retrieve information about specific VM by ID
       vars:
@@ -63,7 +97,7 @@
         api_user: "{{ proxmox_api_user }}"
         type: qemu
         vmid: "{{ new_vm_id }}"
-      loop: "{{ _ndp_limit }}"
+      loop: "{{ limit_resolved_hosts }}"
       register: current_vms_info
 
     - name: Set additional facts
@@ -84,7 +118,7 @@
               rng0: "source=/dev/urandom,max_bytes=1024,period=1000"
             return_content: false
             validate_certs: false
-          loop: "{{ _ndp_limit }}"
+          loop: "{{ limit_resolved_hosts }}"
           register: rng_update
           changed_when: true
           failed_when: rng_update['status'] != 200
@@ -109,7 +143,7 @@
         api_user: "{{ proxmox_api_user }}"
         vmid: "{{ hostvars[item]['vm_id'] }}"
         state: started
-      loop: "{{ _ndp_limit }}"
+      loop: "{{ limit_resolved_hosts }}"
 
     # # NOTE: This module is only available in the devel version of Ansible. Do This
     # #       manually for now.

@@ -4,6 +4,8 @@
   hosts: all
   become: true
   gather_facts: true
+  vars_files:
+    - "../inventories/group_vars/all.yml"
 
   tasks:
     - name: Retrieve information about the NDP management host from Proxmox
