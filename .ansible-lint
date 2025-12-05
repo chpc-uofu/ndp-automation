@@ -12,7 +12,6 @@ exclude_paths:
   - .ansible/
   - .vscode/
   - docs/
-  - packer/
   - venv/
 
 # List of additional kind:pattern to be added at the top of the default
