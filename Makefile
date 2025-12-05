@@ -5,6 +5,7 @@ MAKEFLAGS += -s
 
 # General variables:
 ACTIVATE = $(VENV)/bin/activate
+NDP_ENVS := dev test prod
 NDP_LIMIT ?= ""
 PIP = $(VENV)/bin/pip
 PYTHON3 = /usr/bin/python3.12
@@ -54,12 +55,10 @@ clean: | .confirm_clean venv-remove # Cleans up the automation environment.
 ansible-inventory-graph: # Graphing all hosts in all Ansible inventories.
 	@echo ">>> Graphing all hosts in all Ansible inventories"
 	. $(ACTIVATE); ansible-inventory --graph
-	@echo ">>> Graphing all hosts in the 'dev' Ansible inventory"
-	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/dev
-	@echo ">>> Graphing all hosts in the 'test' Ansible inventory"
-	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/test
-	@echo ">>> Graphing all hosts in the 'prod' Ansible inventory"
-	. $(ACTIVATE); ansible-inventory --graph -i ./inventories/prod		
+	@for env in $(NDP_ENVS); do \
+		echo ">>> Graphing all hosts in the '$$env' Ansible inventory"; \
+		. $(ACTIVATE); ansible-inventory --graph -i ./inventories/$$env; \
+	done
 
 .PHONY: ansible-lint
 ansible-lint: # Runs the Ansible linter.
