@@ -18,7 +18,7 @@
         api_user: "{{ proxmox_api_user }}"
         network: true
         type: qemu
-        vmid: "{{ hostvars[groups['ndp_mgmt'][0]]['vm_id'] }}"
+        vmid: "{{ ndp_mgmt_vmid }}"
       register: ndp_mgmt_info
       tags:
         - bootstrap
