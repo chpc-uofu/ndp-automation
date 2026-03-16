@@ -245,8 +245,8 @@
         - bootstrap
         - monitoring
 
-- name: "Provision: Management NDP VMs"
-  hosts: ndp_mgmt
+- name: "Provision: Management NDP VMs (Prod-only)"
+  hosts: management
   become: true
   gather_facts: true
 
