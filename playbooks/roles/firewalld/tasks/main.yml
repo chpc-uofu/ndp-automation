@@ -32,7 +32,6 @@
     state: enabled
 
 - name: (Workers-only) Always allow SSH from the NDP management host
-  when: not inventory_hostname in groups['ndp_mgmt']
   ansible.posix.firewalld:
     rich_rule: rule family="ipv4" port protocol="tcp" port=22 source address="{{ ndp_mgmt_ipv4 }}" accept
     permanent: true
