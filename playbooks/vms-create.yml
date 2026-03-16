@@ -5,7 +5,7 @@
   gather_facts: false
   tags: always
   vars_files:
-    - "../inventories/group_vars/all.yml"
+    - "../inventories/vars/main.yml"
   vars:
     ndp_ansible_limit: "" # same syntax as --limit
 
@@ -61,7 +61,7 @@
         bios: ovmf
         boot: 'order=scsi0;net0'
         efidisk0:
-          storage: "{{ hostvars[item]['proxmox_storage_pool'] }}"
+          storage: "{{ proxmox_storage_pool }}"
           format: raw
           efitype: 4m
           pre_enrolled_keys: false
@@ -78,7 +78,7 @@
           net0: 'virtio={{ new_vm_mac_address }},bridge=vmbr1,tag={{ new_vm_vlan_tag }}'
         ostype: l26
         scsi:
-          scsi0: "{{ hostvars[item]['proxmox_storage_pool'] }}:{{ hostvars[item]['vm_os_disk_size'] | regex_search('[0-9]+') }}"
+          scsi0: "{{ proxmox_storage_pool }}:{{ hostvars[item]['vm_os_disk_size'] | regex_search('[0-9]+') }}"
         scsihw: virtio-scsi-single
         sockets: 1
         vga: std
